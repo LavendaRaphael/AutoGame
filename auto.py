@@ -18,6 +18,11 @@ def send_right_click(hwnd):
     time.sleep(0.005)
     windll.user32.PostMessageW(hwnd, 0x0205, 0, 0)
 
+def press_key(hwnd, vk_code):
+    windll.user32.PostMessageW(hwnd, 0x0100, vk_code, 0)
+    time.sleep(0.05)
+    windll.user32.PostMessageW(hwnd, 0x0101, vk_code, 0)
+
 def fishing_mode(hwnd):
     print("fishing mode")
     time.sleep(1)
@@ -35,6 +40,20 @@ def fishing_mode(hwnd):
             break
         time.sleep(0.1)
 
+def skipping_mode(hwnd):
+    print("skipping mode")
+    time.sleep(1)
+    while True:
+        if is_key_pressed(0x46):
+            print("skipping")
+            for i in range(20):
+                press_key(hwnd, 0x46)
+                time.sleep(0.5)
+        elif is_key_pressed(0xDD):
+            print("skipping mode exit")
+            break
+        time.sleep(0.1)
+
 def game_mode(hwnd):
     print("game mode")
     while True:
@@ -43,6 +62,8 @@ def game_mode(hwnd):
             break
         if is_key_pressed(0xDB):
             fishing_mode(hwnd)
+        if is_key_pressed(0xDD):
+            skipping_mode(hwnd)
         time.sleep(0.1)
     print("game mode exit")
 def monitor(target_window_title):
@@ -57,4 +78,4 @@ if __name__ == "__main__":
         windll.shell32.ShellExecuteW(None, "runas", sys.executable, __file__, None, 1)
     target_window_title = "无限暖暖"
     monitor(target_window_title)
-    
+    input("Press Enter to continue...")
