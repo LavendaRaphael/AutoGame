@@ -117,26 +117,19 @@ def game_mode(hwnd, overlay):
 
 # 主要执行函数
 def main():
-    logging.basicConfig(filename='overlay_error.log', level=logging.DEBUG)
 
-    try:
-        if not windll.shell32.IsUserAnAdmin():
-            windll.shell32.ShellExecuteW(None, "runas", sys.executable, __file__, None, 1)
-
-        target_window_title = "无限暖暖"
-
-        overlay = OverlayWindow()
-        overlay_thread = threading.Thread(target=overlay.run, daemon=True)
-        overlay_thread.start()
-
-        while True:
-            hwnd, active_window = get_foreground_window_title()
-            if target_window_title in active_window:
-                game_mode(hwnd, overlay)
-            time.sleep(1)
-
-    except Exception as e:
-        logging.error("Exception occurred in overlay", exc_info=True)
+    target_window_title = "无限暖暖"
+    overlay = OverlayWindow()
+    overlay_thread = threading.Thread(target=overlay.run, daemon=True)
+    overlay_thread.start()
+    while True:
+        hwnd, active_window = get_foreground_window_title()
+        if target_window_title in active_window:
+            game_mode(hwnd, overlay)
+        time.sleep(1)
 
 if __name__ == "__main__":
-    main()
+    if windll.shell32.IsUserAnAdmin():
+        main()
+    else:
+        windll.shell32.ShellExecuteW(None, "runas", sys.executable, __file__, None, 1)
