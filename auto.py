@@ -13,6 +13,7 @@ vk_code = {
     ":": 0xBA,
     "[": 0xDB,
     "]": 0xDD,
+    "SPACE": 0x20,
 }
 
 # 获取当前前台窗口标题
@@ -75,12 +76,10 @@ def fishing_mode(hwnd, overlay):
     while True:
         if is_key_pressed(vk_code["A"]):
             overlay.update_text("钓鱼中...")
-            while True:
+            while not is_key_pressed(vk_code["F"]):
                 send_right_click(hwnd)
                 time.sleep(0.005)
-                if is_key_pressed(vk_code["F"]):
-                    overlay.update_text("钓鱼结束")
-                    break
+            overlay.update_text("钓鱼模式")
         elif is_key_pressed(vk_code["]"]):
             overlay.update_text("退出钓鱼模式")
             break
@@ -91,11 +90,12 @@ def skipping_mode(hwnd, overlay):
     overlay.update_text("跳过模式")
     time.sleep(1)
     while True:
-        if is_key_pressed(vk_code["F"]):
+        if is_key_pressed(vk_code["SPACE"]):
             overlay.update_text("跳过中...")
-            for i in range(20):
+            while is_key_pressed(vk_code["SPACE"]):
                 press_key(hwnd, vk_code["F"])
-                time.sleep(0.5)
+                time.sleep(0.3)
+            overlay.update_text("跳过模式")
         elif is_key_pressed(vk_code["]"]):
             overlay.update_text("退出跳过模式")
             break
