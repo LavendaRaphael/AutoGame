@@ -6,36 +6,20 @@ import threading
 from ctypes import windll
 import tkinter as tk
 import winlib
-from winlib import get_foreground_window_title, is_key_pressed, press_key, right_click
-
-# 鱼类模式
-def fishing_mode(hwnd, overlay):
-    overlay.update_text("钓鱼模式")
-    time.sleep(1)
-    while True:
-        if is_key_pressed("A"):
-            overlay.update_text("钓鱼中...")
-            while not is_key_pressed("F"):
-                right_click(hwnd)
-                time.sleep(0.005)
-            overlay.update_text("钓鱼模式")
-        elif is_key_pressed("]"):
-            overlay.update_text("退出钓鱼模式")
-            break
-        time.sleep(0.1)
+from winlib import vk_code, get_foreground_window_title, is_key_pressed, press_key
 
 # 跳过模式
 def skipping_mode(hwnd, overlay):
     overlay.update_text("跳过模式")
     time.sleep(1)
     while True:
-        if is_key_pressed("SPACE"):
+        if is_key_pressed(vk_code("SPACE")):
             overlay.update_text("跳过中...")
-            while is_key_pressed("SPACE"):
-                press_key(hwnd, "F")
+            while is_key_pressed(vk_code("SPACE")):
+                press_key(hwnd, vk_code("SPACE"))
                 time.sleep(0.3)
             overlay.update_text("跳过模式")
-        elif is_key_pressed("]"):
+        elif is_key_pressed(vk_code("]")):
             overlay.update_text("退出跳过模式")
             break
         time.sleep(0.1)
@@ -47,9 +31,7 @@ def game_mode(hwnd, overlay):
         hwnd_x, active_window = get_foreground_window_title()
         if hwnd_x != hwnd:
             break
-        if is_key_pressed("["):
-            fishing_mode(hwnd, overlay)
-        if is_key_pressed(":"):
+        if is_key_pressed(vk_code(":")):
             skipping_mode(hwnd, overlay)
         time.sleep(0.1)
     overlay.update_text("退出游戏模式")
@@ -57,7 +39,7 @@ def game_mode(hwnd, overlay):
 # 主要执行函数
 def main():
 
-    target_window_title = "无限暖暖"
+    target_window_title = "MuMu模拟器12"
     overlay = winlib.OverlayWindow()
     overlay_thread = threading.Thread(target=overlay.run, daemon=True)
     overlay_thread.start()
@@ -68,7 +50,10 @@ def main():
         time.sleep(1)
 
 if __name__ == "__main__":
-    if windll.shell32.IsUserAnAdmin():
-        main()
-    else:
-        windll.shell32.ShellExecuteW(None, "runas", sys.executable, __file__, None, 1)
+    try:
+        if windll.shell32.IsUserAnAdmin():
+            main()
+        else:
+            windll.shell32.ShellExecuteW(None, "runas", sys.executable, __file__, None, 1)
+    except Exception as e:
+        input(f"Error: {e}\nPress Enter to exit...")
