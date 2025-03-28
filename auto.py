@@ -7,7 +7,7 @@ import winlib
 from winlib import get_foreground_window_title, is_key_pressed, click_mouse, press_physical_key
 
 # 鱼类模式
-def fishing_mode(hwnd, overlay):
+def fishing_mode(overlay):
     overlay.update_text("钓鱼模式, 按 A 拉线")
     time.sleep(1)
     while True:
@@ -15,14 +15,14 @@ def fishing_mode(hwnd, overlay):
             overlay.update_text("拉线中，按 F 退出")
             while not is_key_pressed("F"):
                 click_mouse('right')
-                time.sleep(0.005)
+                time.sleep(0.1)
             overlay.update_text("钓鱼模式，按 A 拉线")
         elif is_key_pressed("]"):
             break
         time.sleep(0.1)
 
 # 跳过模式
-def skipping_mode(hwnd, overlay):
+def skipping_mode(overlay):
     overlay.update_text("跳过模式, 按 SPACE 跳过")
     time.sleep(1)
     while True:
@@ -46,10 +46,10 @@ def game_mode(hwnd, overlay, active_window):
         if hwnd_x != hwnd:
             break
         if is_key_pressed("["):
-            fishing_mode(hwnd, overlay)
+            fishing_mode(overlay)
             overlay.update_text(f"{active_window} [ 钓鱼 : 跳过")
         if is_key_pressed(":"):
-            skipping_mode(hwnd, overlay)
+            skipping_mode( overlay)
             overlay.update_text(f"{active_window} [ 钓鱼 : 跳过")
         time.sleep(0.1)
     overlay.update_text("退出游戏模式")
@@ -57,13 +57,13 @@ def game_mode(hwnd, overlay, active_window):
 # 主要执行函数
 def main():
 
-    target_window_title = ["无限暖暖","崩坏：星穹铁道","绝区零"]
     overlay = winlib.OverlayWindow()
     overlay_thread = threading.Thread(target=overlay.run, daemon=True)
     overlay_thread.start()
+    overlay.update_text("启动")
     while True:
         hwnd, active_window = get_foreground_window_title()
-        if active_window in target_window_title:
+        if is_key_pressed("]"):
             game_mode(hwnd, overlay, active_window)
         time.sleep(1)
 
