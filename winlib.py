@@ -152,12 +152,8 @@ class OverlayWindow:
         self.label = tk.Label(self.root, text="启动", font=("SimHei", 12, "bold"), fg="white", bg="black", anchor="w")
         self.label.pack(fill=tk.BOTH, expand=True)
 
-        self.text_buffer = "启动"  # 用于存储显示的文本
-
     def update_text(self, text):
-        # 更新文本时避免重叠，清空旧内容
-        self.text_buffer = text
-        self.label.config(text=self.text_buffer)  # 更新显示的内容
+        self.label.config(text=text)  # 更新显示的内容
         self.root.update()
 
     def run(self):

@@ -12,7 +12,6 @@ logging.basicConfig(
     filename='debug.log',
     level=logging.DEBUG,
     format='%(asctime)s - %(levelname)s - %(message)s',
-    encoding='utf-8'
 )
 # 鱼类模式
 def fishing(overlay):
@@ -59,19 +58,15 @@ def game_mode(hwnd, overlay, active_window, skipping_mode='mouse'):
         if is_key_pressed("["):
             fishing(overlay)
             overlay.update_text(f"{active_window} [ 钓鱼 : 跳过")
-        if is_key_pressed(":"):
+        elif is_key_pressed(":"):
             skipping(overlay, mode=skipping_mode)
             overlay.update_text(f"{active_window} [ 钓鱼 : 跳过")
         time.sleep(0.1)
     overlay.update_text("退出游戏模式")
 
 # 主要执行函数
-def main():
-
-    overlay = winlib.OverlayWindow()
-    overlay_thread = threading.Thread(target=overlay.run, daemon=True)
-    overlay_thread.start()
-    overlay.update_text("启动")
+def game_script_thread(overlay):
+    
     while True:
         hwnd, active_window = get_foreground_window_title()
         if active_window == "无限暖暖  ":
@@ -79,8 +74,17 @@ def main():
         elif active_window == "绝区零" or active_window == "崩坏: 星穹铁道":
             game_mode(hwnd, overlay, active_window)
         time.sleep(1)
-if __name__ == "__main__":
-    if windll.shell32.IsUserAnAdmin():
-        main()
-    else:
+
+def main():
+    if not windll.shell32.IsUserAnAdmin():
         windll.shell32.ShellExecuteW(None, "runas", sys.executable, __file__, None, 1)
+        return
+
+    overlay = winlib.OverlayWindow()
+    # 将 overlay 实例传递给子线程
+    script_thread = threading.Thread(target=game_script_thread, args=(overlay,), daemon=True)
+    script_thread.start()
+    overlay.run()
+
+if __name__ == "__main__":
+    main()
