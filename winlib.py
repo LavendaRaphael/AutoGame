@@ -102,7 +102,7 @@ def press_physical_key(keyname):
     input_struct.ki.dwFlags = KEYEVENTF_SCANCODE | KEYEVENTF_KEYUP
     windll.user32.SendInput(1, ctypes.byref(input_struct), ctypes.sizeof(input_struct))
 
-def click_mouse(button="left"):
+def click_mouse(button):
     """独立鼠标点击函数"""
 
     # 鼠标事件标志常量
@@ -113,9 +113,9 @@ def click_mouse(button="left"):
     MOUSEEVENTF_MIDDLEDOWN = 0x0020
     MOUSEEVENTF_MIDDLEUP = 0x0040
     button_map = {
-        "left": (MOUSEEVENTF_LEFTDOWN, MOUSEEVENTF_LEFTUP),
-        "right": (MOUSEEVENTF_RIGHTDOWN, MOUSEEVENTF_RIGHTUP),
-        "middle": (MOUSEEVENTF_MIDDLEDOWN, MOUSEEVENTF_MIDDLEUP),
+        "MOUSELEFT": (MOUSEEVENTF_LEFTDOWN, MOUSEEVENTF_LEFTUP),
+        "MOUSERIGHT": (MOUSEEVENTF_RIGHTDOWN, MOUSEEVENTF_RIGHTUP),
+        "MOUSEMIDDLE": (MOUSEEVENTF_MIDDLEDOWN, MOUSEEVENTF_MIDDLEUP),
     }
     
     flags = button_map[button]
