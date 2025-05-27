@@ -6,6 +6,9 @@ import tkinter as tk
 import winlib
 from winlib import get_foreground_window_title, is_key_pressed, click_mouse, press_physical_key
 import logging
+import cv2
+import pyautogui
+import numpy as np
 
 # 配置日志记录
 logging.basicConfig(
@@ -66,6 +69,47 @@ def nikky(hwnd, overlay, active_window):
         time.sleep(0.1)
     overlay.update_text("退出游戏模式")
 
+def starrailway(hwnd, overlay, active_window):
+    overlay.update_text(f"{active_window} : 跳过 [ 清体力")
+    while True:
+        hwnd_x, active_window = get_foreground_window_title()
+        if hwnd_x != hwnd:
+            break
+        if is_key_pressed(":"):
+            skipping(overlay, skip_key='MOUSELEFT')
+            overlay.update_text(f"{active_window} : 跳过 [ 清体力")
+        if is_key_pressed("["):
+            rush(overlay)
+            overlay.update_text(f"{active_window} : 跳过 [ 清体力")
+        time.sleep(0.1)
+    overlay.update_text("退出游戏模式")
+
+def rush(overlay):
+
+    overlay.update_text("刷本中 ] 退出")
+    time.sleep(1)
+    while True:
+        if is_key_pressed("]"):
+            break
+        click_mouse('MOUSELEFT', (1800, 1600))
+        time.sleep(1)
+
+def rush2():
+
+    # 读取模板图像
+    template = cv2.imread('.\再来一次.png', 0)
+    print(template)
+    w, h = template.shape[::-1]
+
+    # 截图并转换为灰度
+    screenshot = pyautogui.screenshot()
+    screenshot = cv2.cvtColor(np.array(screenshot), cv2.COLOR_RGB2GRAY)
+
+    # 匹配模板
+    res = cv2.matchTemplate(screenshot, template, cv2.TM_CCOEFF_NORMED)
+    loc = np.where(res >= 0.8)
+    print(loc)
+
 def mihoyo(hwnd, overlay, active_window):
     overlay.update_text(f"{active_window} : 跳过")
     while True:
@@ -85,7 +129,9 @@ def game_script_thread(overlay):
         hwnd, active_window = get_foreground_window_title()
         if active_window == "无限暖暖  ":
             nikky(hwnd, overlay, active_window)
-        elif active_window == "绝区零" or active_window == "崩坏：星穹铁道":
+        elif active_window in ["崩坏：星穹铁道"]:
+            starrailway(hwnd, overlay, active_window)
+        elif active_window in ["绝区零", '重返未来：1999']:
             mihoyo(hwnd, overlay, active_window)
         else:
             logging.info(f"当前窗口: {active_window}，不在游戏中")

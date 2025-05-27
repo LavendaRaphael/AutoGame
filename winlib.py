@@ -102,7 +102,11 @@ def press_physical_key(keyname):
     input_struct.ki.dwFlags = KEYEVENTF_SCANCODE | KEYEVENTF_KEYUP
     windll.user32.SendInput(1, ctypes.byref(input_struct), ctypes.sizeof(input_struct))
 
-def click_mouse(button):
+def click_mouse(button, position=None):
+    
+    if position is not None:
+        windll.user32.SetCursorPos(position[0], position[1])
+
     """独立鼠标点击函数"""
 
     # 鼠标事件标志常量
