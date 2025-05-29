@@ -69,21 +69,6 @@ def nikky(hwnd, overlay, active_window):
         time.sleep(0.1)
     overlay.update_text("退出游戏模式")
 
-def starrailway(hwnd, overlay, active_window):
-    overlay.update_text(f"{active_window} : 跳过 [ 清体力")
-    while True:
-        hwnd_x, active_window = get_foreground_window_title()
-        if hwnd_x != hwnd:
-            break
-        if is_key_pressed(":"):
-            skipping(overlay, skip_key='MOUSELEFT')
-            overlay.update_text(f"{active_window} : 跳过 [ 清体力")
-        if is_key_pressed("["):
-            rush(overlay)
-            overlay.update_text(f"{active_window} : 跳过 [ 清体力")
-        time.sleep(0.1)
-    overlay.update_text("退出游戏模式")
-
 def rush(overlay):
 
     overlay.update_text("刷本中 ] 退出")
@@ -91,7 +76,7 @@ def rush(overlay):
     while True:
         if is_key_pressed("]"):
             break
-        click_mouse('MOUSELEFT', (1800, 1600))
+        click_mouse('MOUSELEFT')#, (1800, 1600))
         time.sleep(1)
 
 def rush2():
@@ -111,14 +96,18 @@ def rush2():
     print(loc)
 
 def mihoyo(hwnd, overlay, active_window):
-    overlay.update_text(f"{active_window} : 跳过")
+    function = f"{active_window} : 跳过 [ 刷本"
+    overlay.update_text(function)
     while True:
         hwnd_x, active_window = get_foreground_window_title()
         if hwnd_x != hwnd:
             break
         if is_key_pressed(":"):
             skipping(overlay, skip_key='MOUSELEFT')
-            overlay.update_text(f"{active_window} : 跳过")
+            overlay.update_text(function)
+        if is_key_pressed("["):
+            rush(overlay)
+            overlay.update_text(function)
         time.sleep(0.1)
     overlay.update_text("退出游戏模式")
 
@@ -129,9 +118,7 @@ def game_script_thread(overlay):
         hwnd, active_window = get_foreground_window_title()
         if active_window == "无限暖暖  ":
             nikky(hwnd, overlay, active_window)
-        elif active_window in ["崩坏：星穹铁道"]:
-            starrailway(hwnd, overlay, active_window)
-        elif active_window in ["绝区零", '重返未来：1999']:
+        elif active_window in ["崩坏：星穹铁道","绝区零", '重返未来：1999']:
             mihoyo(hwnd, overlay, active_window)
         else:
             logging.info(f"当前窗口: {active_window}，不在游戏中")
