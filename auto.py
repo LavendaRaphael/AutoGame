@@ -32,26 +32,19 @@ def fishing(overlay):
         elif is_key_pressed("]"):
             break
         time.sleep(0.1)
-
-# 跳过模式
+        
 def skipping(overlay, skip_key):
-    overlay.update_text("跳过模式, 按 SPACE 跳过")
+    overlay.update_text("跳过模式, 按 ] 退出")
     time.sleep(1)
     while True:
-        if is_key_pressed("SPACE"):
-            overlay.update_text("跳过中")
-            while is_key_pressed("SPACE"):
-                if 'MOUSE' in skip_key:
-                    click_mouse(skip_key)
-                else:
-                    press_physical_key(skip_key)
-                time.sleep(0.1)
-                press_physical_key("1")
-                time.sleep(0.1)
-            overlay.update_text("跳过模式, 按 SPACE 跳过")
-        elif is_key_pressed("]"):
+        if is_key_pressed("]"):
             break
-        time.sleep(0.1)
+        else:
+            if 'MOUSE' in skip_key:
+                click_mouse(skip_key)
+            else:
+                press_physical_key(skip_key)
+            time.sleep(0.2)
 
 # 游戏模式
 def nikky(hwnd, overlay, active_window):
@@ -66,49 +59,20 @@ def nikky(hwnd, overlay, active_window):
         elif is_key_pressed(":"):
             skipping(overlay, skip_key='F')
             overlay.update_text(f"{active_window} [ 钓鱼 : 跳过")
-        time.sleep(0.1)
+        time.sleep(0.2)
     overlay.update_text("退出游戏模式")
 
-def rush(overlay):
-
-    overlay.update_text("刷本中 ] 退出")
-    time.sleep(1)
-    while True:
-        if is_key_pressed("]"):
-            break
-        click_mouse('MOUSELEFT')#, (1800, 1600))
-        time.sleep(1)
-
-def rush2():
-
-    # 读取模板图像
-    template = cv2.imread('.\再来一次.png', 0)
-    print(template)
-    w, h = template.shape[::-1]
-
-    # 截图并转换为灰度
-    screenshot = pyautogui.screenshot()
-    screenshot = cv2.cvtColor(np.array(screenshot), cv2.COLOR_RGB2GRAY)
-
-    # 匹配模板
-    res = cv2.matchTemplate(screenshot, template, cv2.TM_CCOEFF_NORMED)
-    loc = np.where(res >= 0.8)
-    print(loc)
-
 def mihoyo(hwnd, overlay, active_window):
-    function = f"{active_window} : 跳过 [ 刷本"
+    function = f"{active_window} ; 跳过"
     overlay.update_text(function)
     while True:
         hwnd_x, active_window = get_foreground_window_title()
         if hwnd_x != hwnd:
             break
-        if is_key_pressed(":"):
+        if is_key_pressed(";"):
             skipping(overlay, skip_key='MOUSELEFT')
             overlay.update_text(function)
-        if is_key_pressed("["):
-            rush(overlay)
-            overlay.update_text(function)
-        time.sleep(0.1)
+        time.sleep(0.2)
     overlay.update_text("退出游戏模式")
 
 # 主要执行函数

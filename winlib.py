@@ -13,7 +13,7 @@ def vk_codes(name):
         "A": 0x41,
         "E": 0x45,
         "F": 0x46,
-        ":": 0xBA,
+        ";": 0xBA,
         "[": 0xDB,
         "]": 0xDD,
         "'": 0xDE,
