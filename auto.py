@@ -2,13 +2,9 @@ import time
 import sys
 import threading
 from ctypes import windll
-import tkinter as tk
 import winlib
-from winlib import get_foreground_window_title, is_key_pressed, click_mouse, press_physical_key
+from winlib import get_foreground_window_title, is_key_pressed, press
 import logging
-import cv2
-import pyautogui
-import numpy as np
 
 # 配置日志记录
 logging.basicConfig(
@@ -20,60 +16,58 @@ logging.basicConfig(
 )
 # 鱼类模式
 def fishing(overlay):
-    overlay.update_text("钓鱼模式, 按 A 拉线")
+    txt = "钓鱼模式, 按 A 拉线"
+    overlay.update_text(txt)
     time.sleep(1)
     while True:
         if is_key_pressed("A"):
-            overlay.update_text("拉线中，按 F 退出")
+            overlay.update_text("拉线中 F 退出")
             while not is_key_pressed("F"):
-                click_mouse('MOUSERIGHT')
+                press('MOUSERIGHT')
                 time.sleep(0.1)
-            overlay.update_text("钓鱼模式，按 A 拉线")
+            overlay.update_text(txt)
         elif is_key_pressed("]"):
             break
         time.sleep(0.1)
         
 def skipping(overlay, skip_key):
-    overlay.update_text("跳过模式, 按 ] 退出")
+    overlay.update_text("跳过模式 ] 退出")
     time.sleep(1)
     while True:
         if is_key_pressed("]"):
             break
         else:
-            if 'MOUSE' in skip_key:
-                click_mouse(skip_key)
-            else:
-                press_physical_key(skip_key)
+            for keyname in skip_key:
+                press(keyname)
             time.sleep(0.2)
 
 # 游戏模式
 def nikky(hwnd, overlay, active_window):
-    overlay.update_text(f"{active_window} [ 钓鱼 : 跳过")
+    txt = f"{active_window} [ 钓鱼 ; 跳过"
+    overlay.update_text(txt)
     while True:
         hwnd_x, active_window = get_foreground_window_title()
         if hwnd_x != hwnd:
             break
         if is_key_pressed("["):
             fishing(overlay)
-            overlay.update_text(f"{active_window} [ 钓鱼 : 跳过")
-        elif is_key_pressed(":"):
-            skipping(overlay, skip_key='F')
-            overlay.update_text(f"{active_window} [ 钓鱼 : 跳过")
+            overlay.update_text(txt)
+        elif is_key_pressed(";"):
+            skipping(overlay, skip_key=['F'])
+            overlay.update_text(txt)
         time.sleep(0.2)
-    overlay.update_text("退出游戏模式")
 
 def mihoyo(hwnd, overlay, active_window):
-    function = f"{active_window} ; 跳过"
-    overlay.update_text(function)
+    txt = f"{active_window} ; 跳过"
+    overlay.update_text(txt)
     while True:
         hwnd_x, active_window = get_foreground_window_title()
         if hwnd_x != hwnd:
             break
         if is_key_pressed(";"):
-            skipping(overlay, skip_key='MOUSELEFT')
-            overlay.update_text(function)
+            skipping(overlay, skip_key=['MOUSELEFT','1'])
+            overlay.update_text(txt)
         time.sleep(0.2)
-    overlay.update_text("退出游戏模式")
 
 # 主要执行函数
 def game_script_thread(overlay):
@@ -85,7 +79,8 @@ def game_script_thread(overlay):
         elif active_window in ["崩坏：星穹铁道","绝区零", '重返未来：1999']:
             mihoyo(hwnd, overlay, active_window)
         else:
-            logging.info(f"当前窗口: {active_window}，不在游戏中")
+            overlay.update_text(f"当前窗口: {active_window}")
+            logging.info(f"当前窗口: {active_window}")
         time.sleep(1)
 
 def main():

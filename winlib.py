@@ -80,6 +80,13 @@ class INPUT(ctypes.Structure):
         ("_union", INPUT_UNION),
     ]
 
+def press(keyname):
+    
+    if 'MOUSE' in keyname:
+        click_mouse(keyname)
+    else:
+        press_physical_key(keyname)
+
 def press_physical_key(keyname):
     vk_code = vk_codes(keyname)
     scancode = windll.user32.MapVirtualKeyW(vk_code, 0)
