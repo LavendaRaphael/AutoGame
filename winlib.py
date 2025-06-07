@@ -1,8 +1,80 @@
 import ctypes
 import time
-from ctypes import windll
 import tkinter as tk
-from ctypes import wintypes
+from ctypes import windll,wintypes,create_unicode_buffer,byref, c_ubyte
+import numpy as np
+import cv2
+
+def find_pic(hwnd, pic):
+
+    image = capture(hwnd)
+    while True:
+        value, loc = match_pic(image, pic)
+        if value > 0.8:
+            break
+        time.sleep(0.5)
+
+    return loc
+
+def capture(hwnd: wintypes.HWND):
+    
+    # 排除缩放干扰
+    windll.user32.SetProcessDPIAware()
+
+    r = wintypes.RECT()
+    windll.user32.GetClientRect(hwnd, byref(r))
+    width, height = r.right, r.bottom
+
+    dc = windll.user32.GetDC(hwnd)
+    cdc = windll.gdi32.CreateCompatibleDC(dc)
+    bitmap = windll.gdi32.CreateCompatibleBitmap(dc, width, height)
+    windll.gdi32.SelectObject(cdc, bitmap)
+    SRCCOPY = 0x00CC0020
+    windll.gdi32.BitBlt(cdc, 0, 0, width, height, dc, 0, 0, SRCCOPY)
+
+    total_bytes = width*height*4
+    buffer = bytearray(total_bytes)
+    byte_array = c_ubyte*total_bytes
+    windll.gdi32.GetBitmapBits(bitmap, total_bytes, byte_array.from_buffer(buffer))
+    windll.gdi32.DeleteObject(bitmap)
+    windll.gdi32.DeleteObject(cdc)
+    windll.user32.ReleaseDC(hwnd, dc)
+
+    return np.frombuffer(buffer, dtype=np.uint8).reshape(height, width, 4)
+
+def match_pic(image, pic):
+
+    gray = cv2.cvtColor(image, cv2.COLOR_BGRA2GRAY)
+    target = cv2.imread(pic, cv2.IMREAD_UNCHANGED)
+    alpha = target[:,:,3]
+    template = cv2.cvtColor(target, cv2.COLOR_BGRA2GRAY)
+    result = cv2.matchTemplate(gray, template, cv2.TM_CCORR_NORMED, mask=alpha)
+    min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result)
+    h, w = template.shape[:2]
+    loc = (max_loc[0] + w // 2, max_loc[1] + h // 2)
+    return max_val, loc
+
+def get_allwindows():
+    user32 = windll.user32
+    EnumWindows = user32.EnumWindows
+    EnumWindowsProc = wintypes.WINFUNCTYPE(wintypes.BOOL, wintypes.HWND, wintypes.LPARAM)
+    IsWindowVisible = user32.IsWindowVisible
+    GetWindowTextLengthW = user32.GetWindowTextLengthW
+    GetWindowTextW = user32.GetWindowTextW
+
+    windows = []
+
+    def callback(hwnd, lParam):
+        if IsWindowVisible(hwnd):
+            length = GetWindowTextLengthW(hwnd)
+            if length > 0:
+                buffer = create_unicode_buffer(length + 1)
+                GetWindowTextW(hwnd, buffer, length + 1)
+                windows.append((hwnd, buffer.value))
+        return True
+
+    EnumWindows(EnumWindowsProc(callback), 0)
+    return windows
 
 # 按键代码定义
 def vk_codes(name):
@@ -80,10 +152,10 @@ class INPUT(ctypes.Structure):
         ("_union", INPUT_UNION),
     ]
 
-def press(keyname):
+def press(keyname, position=None):
     
     if 'MOUSE' in keyname:
-        click_mouse(keyname)
+        click_mouse(keyname, position)
     else:
         press_physical_key(keyname)
 
