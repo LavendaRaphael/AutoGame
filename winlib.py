@@ -80,8 +80,37 @@ def find_pic(hwnd, pic, pic_overlay, debug=False):
     else:
         return False, None
 
+def match_pic(image, pic, debug='overlay'):
+
+    gray = cv2.cvtColor(image, cv2.COLOR_BGRA2GRAY)
+    target = cv2.imread(pic, cv2.IMREAD_UNCHANGED)
+    template = cv2.cvtColor(target, cv2.COLOR_BGRA2GRAY)
+    if target.shape[2] == 4 and np.any(target[:, :, 3] < 255):
+        alpha = target[:,:,3]
+        result = cv2.matchTemplate(gray, template, cv2.TM_CCORR_NORMED, mask=alpha)
+    else:
+        result = cv2.matchTemplate(gray, template, cv2.TM_SQDIFF)
+    min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result)
+    h, w = template.shape[:2]
+    loc = max_loc
+    val = max_val
+    center_x = loc[0] + w // 2
+    center_y = loc[1] + h // 2
+
+    if debug == 'overlay':
+        debug_overlay = np.zeros((image.shape[0], image.shape[1], 4), dtype=np.uint8)
+    else:
+        debug_overlay = image.copy()
+    cv2.rectangle(debug_overlay, loc, (loc[0] + w, loc[1] + h), (0, 0, 255, 180), 2)
+    cv2.circle(debug_overlay, (center_x, center_y), 5, (0, 255, 0, 200), -1)
+    cv2.putText(debug_overlay, f"{pic} {val:.3f}", (loc[0], loc[1] - 10), 
+               cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255, 255), 1, cv2.LINE_AA)
+    cv2.putText(debug_overlay, f"({center_x}, {center_y})", (loc[0], loc[1] + h + 30), 
+               cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 200, 255, 255), 1, cv2.LINE_AA)
+    #cv2.imwrite(f"debug_frame_{int(time.time())}.png", overlay)
+    return val, (center_x, center_y), debug_overlay
+
 def capture(hwnd: wintypes.HWND):
-    #windll.user32.SetProcessDPIAware()
     
     # 获取窗口尺寸
     r = wintypes.RECT()
@@ -136,34 +165,6 @@ def capture_bitblt(hwnd: wintypes.HWND):
     windll.user32.ReleaseDC(hwnd, dc)
 
     return np.frombuffer(buffer, dtype=np.uint8).reshape(height, width, 4)
-
-def match_pic(image, pic):
-
-    gray = cv2.cvtColor(image, cv2.COLOR_BGRA2GRAY)
-    target = cv2.imread(pic, cv2.IMREAD_UNCHANGED)
-    template = cv2.cvtColor(target, cv2.COLOR_BGRA2GRAY)
-    alpha = None
-    if target.shape[2] == 4 and np.any(target[:, :, 3] < 255):
-        alpha = target[:,:,3]
-    
-    result = cv2.matchTemplate(gray, template, cv2.TM_CCORR_NORMED, mask=alpha)
-    #result = cv2.matchTemplate(gray, template, cv2.TM_SQDIFF, mask=alpha)
-    min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result)
-    h, w = template.shape[:2]
-    loc = max_loc
-    val = max_val
-    center_x = loc[0] + w // 2
-    center_y = loc[1] + h // 2
-    
-    debug_overlay = np.zeros((image.shape[0], image.shape[1], 4), dtype=np.uint8)
-    cv2.rectangle(debug_overlay, loc, (loc[0] + w, loc[1] + h), (0, 0, 255, 180), 2)
-    cv2.circle(debug_overlay, (center_x, center_y), 5, (0, 255, 0, 200), -1)
-    cv2.putText(debug_overlay, f"{pic} {val:.3f}", (loc[0], loc[1] - 10), 
-               cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255, 255), 1, cv2.LINE_AA)
-    cv2.putText(debug_overlay, f"({center_x}, {center_y})", (loc[0], loc[1] + h + 30), 
-               cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 200, 255, 255), 1, cv2.LINE_AA)
-    #cv2.imwrite(f"debug_frame_{int(time.time())}.png", overlay)
-    return val, (center_x, center_y), debug_overlay
 
 def get_allwindows():
     user32 = windll.user32
