@@ -3,7 +3,7 @@ import sys
 import threading
 from ctypes import windll
 import winlib
-from winlib import get_foreground_window_title, is_key_pressed, press
+from winlib import get_foreground_window_title, is_key_pressed, press, LogOverlay
 import logging
 
 # 配置日志记录
@@ -88,11 +88,11 @@ def main():
         windll.shell32.ShellExecuteW(None, "runas", sys.executable, __file__, None, 1)
         return
 
-    overlay = winlib.OverlayWindow()
+    overlay = LogOverlay(None)
     # 将 overlay 实例传递给子线程
     script_thread = threading.Thread(target=game_script_thread, args=(overlay,), daemon=True)
     script_thread.start()
-    overlay.run()
+    overlay.root.mainloop()
 
 if __name__ == "__main__":
     main()

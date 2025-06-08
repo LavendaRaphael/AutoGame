@@ -4,19 +4,114 @@ import tkinter as tk
 from ctypes import windll,wintypes,create_unicode_buffer,byref, c_ubyte
 import numpy as np
 import cv2
+from PIL import Image, ImageTk
 
-def find_pic(hwnd, pic):
+class LogOverlay:
+    def __init__(self, master):
+        self.root = tk.Toplevel(master)
+        self.root.title("Overlay")
+        self.root.attributes("-topmost", True)  # 确保窗口始终在最前面
+        self.root.attributes("-transparentcolor", "black")  # 设置透明色为黑色
+        self.root.overrideredirect(True)
 
+        # 获取屏幕尺寸
+        screen_width = self.root.winfo_screenwidth()
+        screen_height = self.root.winfo_screenheight()
+
+        self.root.geometry(f"1000x100+0+{screen_height-100}")
+
+        self.label = tk.Label(self.root, text="启动", font=("SimHei", 12, "bold"), fg="white", bg="black", anchor="w")
+        self.label.pack(fill=tk.BOTH, expand=True)
+
+    def update_text(self, text):
+        self.label.config(text=text)  # 更新显示的内容
+        self.root.update()
+
+    #def update(self):
+    #    self.root.update_idletasks()
+    #    self.root.update()
+
+class PicOverlay:
+    def __init__(self, master):
+        self.root = tk.Toplevel(master)
+        self.root.wm_attributes("-topmost", True)  # 置顶
+        self.root.wm_attributes("-transparentcolor", "black")
+        self.root.overrideredirect(True)  # 无边框
+        
+        # 初始位置（右上角）
+        self.screen_width = self.root.winfo_screenwidth()
+        self.screen_height = self.root.winfo_screenheight()
+        self.root.geometry("300x200+{}+10".format(self.screen_width-310))
+        
+        init_img = np.zeros((200,300,4), dtype=np.uint8)
+        img_pil = Image.fromarray(cv2.cvtColor(init_img, cv2.COLOR_BGRA2RGBA))
+        img_tk = ImageTk.PhotoImage(image=img_pil)
+
+        self.label = tk.Label(self.root, image=img_tk, bg="black")
+        self.label.pack()
+        
+    def update_overlay(self, overlay_image):
+        if overlay_image is not None:
+            # 将OpenCV图像转换为PIL格式
+            overlay_image = cv2.cvtColor(overlay_image, cv2.COLOR_BGRA2RGBA)
+            img_pil = Image.fromarray(overlay_image)
+            img_tk = ImageTk.PhotoImage(image=img_pil)
+            
+            self.label.configure(image=img_tk)
+            self.label.image = img_tk  # 保持引用
+            
+            h, w = overlay_image.shape[:2]
+            self.root.geometry(f"{w}x{h}+0+0")
+            self.root.update()
+    
+    #def update(self):
+    #    self.root.update_idletasks()
+    #    self.root.update()
+
+def find_pic(hwnd, pic, pic_overlay, debug=False):
     image = capture(hwnd)
-    while True:
-        value, loc = match_pic(image, pic)
-        if value > 0.8:
-            break
-        time.sleep(0.5)
-
-    return loc
+    value, loc, debug_overlay = match_pic(image, pic)
+    #print(hwnd,pic,value, loc)
+    #if value > 0.95:
+    if True:
+        if debug:
+            pic_overlay.update_overlay(debug_overlay)
+        return True, loc
+    else:
+        return False, None
 
 def capture(hwnd: wintypes.HWND):
+    #windll.user32.SetProcessDPIAware()
+    
+    # 获取窗口尺寸
+    r = wintypes.RECT()
+    windll.user32.GetClientRect(hwnd, byref(r))
+    width, height = r.right, r.bottom
+    
+    # 创建兼容DC
+    dc = windll.user32.GetDC(hwnd)
+    cdc = windll.gdi32.CreateCompatibleDC(dc)
+    bitmap = windll.gdi32.CreateCompatibleBitmap(dc, width, height)
+    windll.gdi32.SelectObject(cdc, bitmap)
+    
+    # 关键修改：使用 PrintWindow 替代 BitBlt
+    PW_RENDERFULLCONTENT = 0x02
+    windll.user32.PrintWindow(hwnd, cdc, PW_RENDERFULLCONTENT)
+    
+    # 获取位图数据
+    total_bytes = width * height * 4
+    buffer = bytearray(total_bytes)
+    byte_array = (ctypes.c_ubyte * total_bytes).from_buffer(buffer)
+    windll.gdi32.GetBitmapBits(bitmap, total_bytes, byte_array)
+    
+    # 清理资源
+    windll.gdi32.DeleteObject(bitmap)
+    windll.gdi32.DeleteObject(cdc)
+    windll.user32.ReleaseDC(hwnd, dc)
+    
+    return np.frombuffer(buffer, dtype=np.uint8).reshape(height, width, 4)
+
+def capture_bitblt(hwnd: wintypes.HWND):
     
     # 排除缩放干扰
     windll.user32.SetProcessDPIAware()
@@ -46,13 +141,29 @@ def match_pic(image, pic):
 
     gray = cv2.cvtColor(image, cv2.COLOR_BGRA2GRAY)
     target = cv2.imread(pic, cv2.IMREAD_UNCHANGED)
-    alpha = target[:,:,3]
     template = cv2.cvtColor(target, cv2.COLOR_BGRA2GRAY)
+    alpha = None
+    if target.shape[2] == 4 and np.any(target[:, :, 3] < 255):
+        alpha = target[:,:,3]
+    
     result = cv2.matchTemplate(gray, template, cv2.TM_CCORR_NORMED, mask=alpha)
+    #result = cv2.matchTemplate(gray, template, cv2.TM_SQDIFF, mask=alpha)
     min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result)
     h, w = template.shape[:2]
-    loc = (max_loc[0] + w // 2, max_loc[1] + h // 2)
-    return max_val, loc
+    loc = max_loc
+    val = max_val
+    center_x = loc[0] + w // 2
+    center_y = loc[1] + h // 2
+    
+    debug_overlay = np.zeros((image.shape[0], image.shape[1], 4), dtype=np.uint8)
+    cv2.rectangle(debug_overlay, loc, (loc[0] + w, loc[1] + h), (0, 0, 255, 180), 2)
+    cv2.circle(debug_overlay, (center_x, center_y), 5, (0, 255, 0, 200), -1)
+    cv2.putText(debug_overlay, f"{pic} {val:.3f}", (loc[0], loc[1] - 10), 
+               cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255, 255), 1, cv2.LINE_AA)
+    cv2.putText(debug_overlay, f"({center_x}, {center_y})", (loc[0], loc[1] + h + 30), 
+               cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 200, 255, 255), 1, cv2.LINE_AA)
+    #cv2.imwrite(f"debug_frame_{int(time.time())}.png", overlay)
+    return val, (center_x, center_y), debug_overlay
 
 def get_allwindows():
     user32 = windll.user32
@@ -216,28 +327,3 @@ def click_mouse(button, position=None):
     time.sleep(0.05)  # 保持按下状态
     input_struct.mi.dwFlags = flags[1]
     windll.user32.SendInput(1, ctypes.byref(input_struct), ctypes.sizeof(input_struct))
-
-# 创建透明遮罩窗口
-class OverlayWindow:
-    def __init__(self):
-        self.root = tk.Tk()
-        self.root.title("Overlay")
-        self.root.attributes("-topmost", True)  # 确保窗口始终在最前面
-        self.root.attributes("-transparentcolor", "black")  # 设置透明色为黑色
-        self.root.overrideredirect(True)  # 去掉标题栏
-
-        # 获取屏幕尺寸
-        screen_width = self.root.winfo_screenwidth()
-        screen_height = self.root.winfo_screenheight()
-
-        self.root.geometry(f"1000x100+0+{screen_height-100}")
-
-        self.label = tk.Label(self.root, text="启动", font=("SimHei", 12, "bold"), fg="white", bg="black", anchor="w")
-        self.label.pack(fill=tk.BOTH, expand=True)
-
-    def update_text(self, text):
-        self.label.config(text=text)  # 更新显示的内容
-        self.root.update()
-
-    def run(self):
-        self.root.mainloop()
