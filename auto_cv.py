@@ -8,18 +8,20 @@ import tkinter as tk
 def skipping(log_overlay, pic_overlay, hwnd):
     log_overlay.update_text("跳过模式 ] 退出")
     time.sleep(1)
+    list_dialog = [
+        {'pic': 'zzz/dialog_1.png', 'shift': (-100,0), 'pictype': 'diff'},
+        {'pic': 'zzz/dialog_2.png', 'shift': (100,0)},
+        {'pic': 'zzz/dialog_3.png', 'shift': (100,0)},
+        {'pic': 'zzz/dialog_4.png', 'shift': (100,0)},
+    ]
     while True:
         if is_key_pressed("]"):
             break
-        for pic, shift in [
-            ('zzz/dialog_1.png',(-100,0)),
-            #('zzz/dialog_2.png',(100,0)),
-            #('zzz/dialog_3.png',(100,0)),
-            #('zzz/dialog_4.png',(100,0)),
-        ]:
-            tof, loc = find_pic(hwnd, pic, pic_overlay, debug=True)
-            #if tof:
-            #    press('MOUSELEFT', (loc[0]+shift[0], loc[1]+shift[1]))
+        for dict_pic in list_dialog:
+            tof, loc = find_pic(hwnd, dict_pic, pic_overlay, debug=True)
+            if tof:
+                shift = dict_pic['shift']
+                press('MOUSELEFT', (loc[0]+shift[0], loc[1]+shift[1]))
         time.sleep(0.2)
 
 def mihoyo(hwnd, log_overlay, pic_overlay, active_window):
@@ -37,14 +39,16 @@ def mihoyo(hwnd, log_overlay, pic_overlay, active_window):
 def game_script_thread(log_overlay, pic_overlay):
     while True:
         hwnd, active_window = get_foreground_window_title()
-        #if active_window in ["绝区零"]:
-        if True:
+        if active_window in ["绝区零"]:
+        #if True:
             mihoyo(hwnd, log_overlay, pic_overlay, active_window)
         else:
             log_overlay.update_text(f"当前窗口: {active_window}")
         time.sleep(1)
 
 def main():
+    
+    windll.shcore.SetProcessDpiAwareness(2)
     if not windll.shell32.IsUserAnAdmin():
         windll.shell32.ShellExecuteW(None, "runas", sys.executable, __file__, None, 1)
         return

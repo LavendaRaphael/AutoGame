@@ -68,47 +68,57 @@ class PicOverlay:
     #    self.root.update_idletasks()
     #    self.root.update()
 
-def find_pic(hwnd, pic, pic_overlay, debug=False):
-    image = capture(hwnd)
-    value, loc, debug_overlay = match_pic(image, pic)
-    #print(hwnd,pic,value, loc)
-    #if value > 0.95:
-    if True:
-        if debug:
-            pic_overlay.update_overlay(debug_overlay)
-        return True, loc
+def find_pic(hwnd, dict_pic, pic_overlay, debug=False):
+    if 'type' in dict_pic:
+        image1 = capture(hwnd)
+        image1_g = cv2.cvtColor(image1, cv2.COLOR_BGRA2GRAY)
+        image2 = capture(hwnd)
+        image2_g = cv2.cvtColor(image2, cv2.COLOR_BGRA2GRAY)
+        image = cv2.absdiff(image1_g, image2_g)
     else:
-        return False, None
+        image = capture(hwnd)
+    pic = dict_pic['pic']
+    value, loc, debug_overlay = match_pic(image, pic)
+    res = (value > 0.95)
+    if debug:
+        print(hwnd,pic,value,loc)
+    if res or debug:
+        pic_overlay.update_overlay(debug_overlay)
+    return res, loc
 
 def match_pic(image, pic, debug='overlay'):
 
     gray = cv2.cvtColor(image, cv2.COLOR_BGRA2GRAY)
     target = cv2.imread(pic, cv2.IMREAD_UNCHANGED)
     template = cv2.cvtColor(target, cv2.COLOR_BGRA2GRAY)
-    if target.shape[2] == 4 and np.any(target[:, :, 3] < 255):
-        alpha = target[:,:,3]
-        result = cv2.matchTemplate(gray, template, cv2.TM_CCORR_NORMED, mask=alpha)
-    else:
-        result = cv2.matchTemplate(gray, template, cv2.TM_SQDIFF)
+    #if target.shape[2] == 4 and np.any(target[:, :, 3] < 255):
+    #    alpha = target[:,:,3]
+    #    #result = cv2.matchTemplate(gray, template, cv2.TM_SQDIFF, mask=alpha)
+    #    result = cv2.matchTemplate(gray, template, cv2.TM_CCORR_NORMED, mask=alpha)
+    result = cv2.matchTemplate(gray, template, cv2.TM_CCORR_NORMED)
     min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result)
     h, w = template.shape[:2]
-    loc = max_loc
     val = max_val
-    center_x = loc[0] + w // 2
-    center_y = loc[1] + h // 2
+    center = (max_loc[0] + w // 2, max_loc[1] + h // 2)
 
     if debug == 'overlay':
-        debug_overlay = np.zeros((image.shape[0], image.shape[1], 4), dtype=np.uint8)
+        image_overlay = np.zeros((image.shape[0], image.shape[1], 4), dtype=np.uint8)
     else:
-        debug_overlay = image.copy()
-    cv2.rectangle(debug_overlay, loc, (loc[0] + w, loc[1] + h), (0, 0, 255, 180), 2)
-    cv2.circle(debug_overlay, (center_x, center_y), 5, (0, 255, 0, 200), -1)
-    cv2.putText(debug_overlay, f"{pic} {val:.3f}", (loc[0], loc[1] - 10), 
+        image_overlay = image.copy()
+    #draw_rect(image_overlay, min_val, min_loc, w, h, pic)
+    draw_rect(image_overlay, max_val, max_loc, w, h, pic)
+
+    return val, center, image_overlay
+
+def draw_rect(image_overlay, val, loc, w, h, pic):
+    center_x = loc[0] + w // 2
+    center_y = loc[1] + h // 2
+    cv2.rectangle(image_overlay, loc, (loc[0] + w, loc[1] + h), (0, 0, 255, 180), 2)
+    cv2.circle(image_overlay, (center_x, center_y), 5, (0, 255, 0, 200), -1)
+    cv2.putText(image_overlay, f"{pic} {val:.2f}", (loc[0], loc[1] - 10), 
                cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255, 255), 1, cv2.LINE_AA)
-    cv2.putText(debug_overlay, f"({center_x}, {center_y})", (loc[0], loc[1] + h + 30), 
+    cv2.putText(image_overlay, f"({center_x}, {center_y})", (loc[0], loc[1] + h + 30), 
                cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 200, 255, 255), 1, cv2.LINE_AA)
-    #cv2.imwrite(f"debug_frame_{int(time.time())}.png", overlay)
-    return val, (center_x, center_y), debug_overlay
 
 def capture(hwnd: wintypes.HWND):
     
