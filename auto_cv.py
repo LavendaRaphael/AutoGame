@@ -4,24 +4,32 @@ from ctypes import windll
 import threading
 import sys
 import tkinter as tk
-
+import logging
+# 配置日志记录
+logging.basicConfig(
+    filename='debug.log',
+    filemode='w',
+    level=logging.DEBUG,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    encoding='utf-8'
+)
 def skipping(log_overlay, pic_overlay, hwnd):
     log_overlay.update_text("跳过模式 ] 退出")
     time.sleep(1)
-    list_dialog = [
-        {'pic': 'zzz/dialog_1.png', 'shift': (-100,0), 'pictype': 'diff'},
-        {'pic': 'zzz/dialog_2.png', 'shift': (100,0)},
-        {'pic': 'zzz/dialog_3.png', 'shift': (100,0)},
-        {'pic': 'zzz/dialog_4.png', 'shift': (100,0)},
-    ]
     while True:
         if is_key_pressed("]"):
             break
-        for dict_pic in list_dialog:
-            tof, loc = find_pic(hwnd, dict_pic, pic_overlay, debug=True)
+        for pic, shift in [
+                ('zzz/dialog_1.png', (-100,0)),
+                ('zzz/dialog_2.png', ( 100,0)),
+                ('zzz/dialog_3.png', ( 100,0)),
+                ('zzz/dialog_4.png', ( 100,0)),
+                ('zzz/dialog_5.png', ( 100,0)),
+            ]:
+            tof, loc = find_pic(hwnd, pic, pic_overlay, debug=True)
             if tof:
-                shift = dict_pic['shift']
                 press('MOUSELEFT', (loc[0]+shift[0], loc[1]+shift[1]))
+                break
         time.sleep(0.2)
 
 def mihoyo(hwnd, log_overlay, pic_overlay, active_window):

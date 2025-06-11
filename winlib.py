@@ -5,7 +5,7 @@ from ctypes import windll,wintypes,create_unicode_buffer,byref, c_ubyte
 import numpy as np
 import cv2
 from PIL import Image, ImageTk
-
+import logging
 class LogOverlay:
     def __init__(self, master):
         self.root = tk.Toplevel(master)
@@ -68,45 +68,48 @@ class PicOverlay:
     #    self.root.update_idletasks()
     #    self.root.update()
 
-def find_pic(hwnd, dict_pic, pic_overlay, debug=False):
-    if 'type' in dict_pic:
+def find_pic(hwnd, pic, pic_overlay, debug=False):
+    template = cv2.imread(pic, cv2.IMREAD_UNCHANGED)
+    if len(template.shape) == 2:
         image1 = capture(hwnd)
         image1_g = cv2.cvtColor(image1, cv2.COLOR_BGRA2GRAY)
         image2 = capture(hwnd)
         image2_g = cv2.cvtColor(image2, cv2.COLOR_BGRA2GRAY)
         image = cv2.absdiff(image1_g, image2_g)
+        _, image = cv2.threshold(image, 15, 255, cv2.THRESH_BINARY)
+        _, template = cv2.threshold(template, 15, 255, cv2.THRESH_BINARY)
+        #cv2.imwrite('cap/diff_x.png',image)
     else:
         image = capture(hwnd)
-    pic = dict_pic['pic']
-    value, loc, debug_overlay = match_pic(image, pic)
-    res = (value > 0.95)
+    value, loc, debug_overlay = match_pic(image, template, pic)
+    res = (value < 0.05)
     if debug:
-        print(hwnd,pic,value,loc)
+        res = False
     if res or debug:
+        logging.info(f"{pic},{value},{loc}")
         pic_overlay.update_overlay(debug_overlay)
     return res, loc
 
-def match_pic(image, pic, debug='overlay'):
+def match_pic(image, template, pic, debug='overlay'):
 
-    gray = cv2.cvtColor(image, cv2.COLOR_BGRA2GRAY)
-    target = cv2.imread(pic, cv2.IMREAD_UNCHANGED)
-    template = cv2.cvtColor(target, cv2.COLOR_BGRA2GRAY)
     #if target.shape[2] == 4 and np.any(target[:, :, 3] < 255):
     #    alpha = target[:,:,3]
     #    #result = cv2.matchTemplate(gray, template, cv2.TM_SQDIFF, mask=alpha)
     #    result = cv2.matchTemplate(gray, template, cv2.TM_CCORR_NORMED, mask=alpha)
-    result = cv2.matchTemplate(gray, template, cv2.TM_CCORR_NORMED)
+    #result = cv2.matchTemplate(image, template, cv2.TM_SQDIFF)
+    result = cv2.matchTemplate(image, template, cv2.TM_SQDIFF_NORMED)
+    #result = cv2.matchTemplate(image, template, cv2.TM_CCORR_NORMED)
     min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result)
     h, w = template.shape[:2]
-    val = max_val
-    center = (max_loc[0] + w // 2, max_loc[1] + h // 2)
+    val = min_val
+    center = (min_loc[0] + w // 2, min_loc[1] + h // 2)
 
     if debug == 'overlay':
         image_overlay = np.zeros((image.shape[0], image.shape[1], 4), dtype=np.uint8)
     else:
         image_overlay = image.copy()
-    #draw_rect(image_overlay, min_val, min_loc, w, h, pic)
-    draw_rect(image_overlay, max_val, max_loc, w, h, pic)
+    draw_rect(image_overlay, min_val, min_loc, w, h, pic)
+    #draw_rect(image_overlay, max_val, max_loc, w, h, pic)
 
     return val, center, image_overlay
 
