@@ -1,23 +1,31 @@
 import cv2
 import numpy as np
-import numpy as np
-import matplotlib.pyplot as plt
+from winlib import get_foreground_window_title, is_key_pressed, capture, LogOverlay
+import time
+import sys
+from ctypes import windll
+import tkinter as tk
 
+def main():
+
+    windll.shcore.SetProcessDpiAwareness(2)
+    if not windll.shell32.IsUserAnAdmin():
+        windll.shell32.ShellExecuteW(None, "runas", sys.executable, __file__, None, 1)
+        return
+    
+    root = tk.Tk()
+    root.withdraw()
+    
+    log_overlay = LogOverlay(root)
+    while True:
+        hwnd, active_window = get_foreground_window_title()
+        if is_key_pressed(";"):
+            image = capture(hwnd)
+            pic = f"cap/{time.strftime('%Y%m%d_%H%M%S')}.png"
+            cv2.imwrite(pic, image)
+            log_overlay.update_text(pic)
+        time.sleep(1)
 
 if __name__ == "__main__":
 
-    image = cv2.imread('cap/diff.png', cv2.IMREAD_UNCHANGED)
-    print(image.shape)
-    
-    x1, y1 = 2204, 1652
-    x2, y2 = 2246, 1684
-    diff_cap = image[y1:y2, x1:x2]
-    print(diff_cap)
-    cv2.imwrite("cap/diff_cap.png", diff_cap)
-
-    for i in range(5,40,5):
-        image_tmp = np.where(image > i, 255, 0)
-        cv2.imwrite(f"cap/image_{i}.png", image_tmp)
-        cap_tmp = image_tmp[y1:y2, x1:x2]
-        cv2.imwrite(f"cap/cap_{i}.png", cap_tmp)
-    
+    main()

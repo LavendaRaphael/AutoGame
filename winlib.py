@@ -27,10 +27,6 @@ class LogOverlay:
         self.label.config(text=text)  # 更新显示的内容
         self.root.update()
 
-    #def update(self):
-    #    self.root.update_idletasks()
-    #    self.root.update()
-
 class PicOverlay:
     def __init__(self, master):
         self.root = tk.Toplevel(master)
@@ -63,55 +59,39 @@ class PicOverlay:
             h, w = overlay_image.shape[:2]
             self.root.geometry(f"{w}x{h}+0+0")
             self.root.update()
-    
-    #def update(self):
-    #    self.root.update_idletasks()
-    #    self.root.update()
 
-def find_pic(hwnd, pic, pic_overlay, debug=False):
+def find_pic(image, pic, picrange, debug=False, pic_overlay=None):
+    x1, y1, x2, y2 = picrange
+    image_clip = image[y1:y2, x1:x2]
     template = cv2.imread(pic, cv2.IMREAD_UNCHANGED)
-    if len(template.shape) == 2:
-        image1 = capture(hwnd)
-        image1_g = cv2.cvtColor(image1, cv2.COLOR_BGRA2GRAY)
-        image2 = capture(hwnd)
-        image2_g = cv2.cvtColor(image2, cv2.COLOR_BGRA2GRAY)
-        image = cv2.absdiff(image1_g, image2_g)
-        _, image = cv2.threshold(image, 15, 255, cv2.THRESH_BINARY)
-        _, template = cv2.threshold(template, 15, 255, cv2.THRESH_BINARY)
-        #cv2.imwrite('cap/diff_x.png',image)
-    else:
-        image = capture(hwnd)
-    value, loc, debug_overlay = match_pic(image, template, pic)
+
+    value, loc_clip = match_pic(image_clip, template, pic, debug=debug, pic_overlay=pic_overlay)
+    loc = (loc_clip[0]+x1, loc_clip[1]+y1)
+    logging.info(f"{pic},{value},{loc}")
+
     res = (value < 0.05)
-    if debug:
-        res = False
-    if res or debug:
-        logging.info(f"{pic},{value},{loc}")
-        pic_overlay.update_overlay(debug_overlay)
+
     return res, loc
 
-def match_pic(image, template, pic, debug='overlay'):
+def match_pic(image, template, pic, debug=False, pic_overlay=None):
 
-    #if target.shape[2] == 4 and np.any(target[:, :, 3] < 255):
-    #    alpha = target[:,:,3]
-    #    #result = cv2.matchTemplate(gray, template, cv2.TM_SQDIFF, mask=alpha)
-    #    result = cv2.matchTemplate(gray, template, cv2.TM_CCORR_NORMED, mask=alpha)
-    #result = cv2.matchTemplate(image, template, cv2.TM_SQDIFF)
-    result = cv2.matchTemplate(image, template, cv2.TM_SQDIFF_NORMED)
-    #result = cv2.matchTemplate(image, template, cv2.TM_CCORR_NORMED)
+    if template.shape[2] == 4 and np.any(template[:, :, 3] < 255):
+        alpha = template[:,:,3]
+        result = cv2.matchTemplate(image, template, cv2.TM_SQDIFF_NORMED, mask=alpha)
+    else:
+        result = cv2.matchTemplate(image, template, cv2.TM_SQDIFF_NORMED)
     min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result)
     h, w = template.shape[:2]
     val = min_val
-    center = (min_loc[0] + w // 2, min_loc[1] + h // 2)
+    loc = min_loc
+    #center = (min_loc[0] + w // 2, min_loc[1] + h // 2)
 
     if debug == 'overlay':
         image_overlay = np.zeros((image.shape[0], image.shape[1], 4), dtype=np.uint8)
-    else:
-        image_overlay = image.copy()
-    draw_rect(image_overlay, min_val, min_loc, w, h, pic)
-    #draw_rect(image_overlay, max_val, max_loc, w, h, pic)
+        draw_rect(image_overlay, min_val, min_loc, w, h, pic)
+        pic_overlay.update_overlay(image_overlay)
 
-    return val, center, image_overlay
+    return val, loc
 
 def draw_rect(image_overlay, val, loc, w, h, pic):
     center_x = loc[0] + w // 2
@@ -151,7 +131,10 @@ def capture(hwnd: wintypes.HWND):
     windll.gdi32.DeleteObject(cdc)
     windll.user32.ReleaseDC(hwnd, dc)
     
-    return np.frombuffer(buffer, dtype=np.uint8).reshape(height, width, 4)
+    image = np.frombuffer(buffer, dtype=np.uint8).reshape(height, width, 4)
+    image_g = cv2.cvtColor(image, cv2.COLOR_BGRA2GRAY)
+
+    return image_g
 
 def capture_bitblt(hwnd: wintypes.HWND):
     

@@ -5,6 +5,7 @@ import threading
 import sys
 import tkinter as tk
 import logging
+import cv2
 # 配置日志记录
 logging.basicConfig(
     filename='debug.log',
@@ -19,8 +20,12 @@ def skipping(log_overlay, pic_overlay, hwnd):
     while True:
         if is_key_pressed("]"):
             break
+        image1 = capture(hwnd)
+        image2 = capture(hwnd)
+        diff = cv2.absdiff(image1, image2)
+        _, image = cv2.threshold(diff, 15, 255, cv2.THRESH_BINARY)
         for pic, shift in [
-                ('zzz/dialog_1.png', (-100,0)),
+                ('zzz/dialog_1.png', (-100,0), 'diff'),
                 ('zzz/dialog_2.png', ( 100,0)),
                 ('zzz/dialog_3.png', ( 100,0)),
                 ('zzz/dialog_4.png', ( 100,0)),
@@ -67,13 +72,6 @@ def main():
     log_overlay = LogOverlay(root)
     pic_overlay = PicOverlay(root)
     
-    # 使用after定时更新
-    #def update_overlays():
-    #    log_overlay.update()
-    #    #pic_overlay.update()
-    #    root.after(50, update_overlays)  # 每50ms更新一次
-        
-    #root.after(0, update_overlays)
     script_thread = threading.Thread(target=game_script_thread,
                                     args=(log_overlay, pic_overlay), 
                                     daemon=True)
