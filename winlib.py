@@ -65,31 +65,28 @@ def find_pic(image, pic, picrange, debug=False, pic_overlay=None):
     image_clip = image[y1:y2, x1:x2]
     template = cv2.imread(pic, cv2.IMREAD_UNCHANGED)
 
-    value, loc_clip = match_pic(image_clip, template, pic, debug=debug, pic_overlay=pic_overlay)
+    value, loc_clip = match_pic(image_clip, template)
     loc = (loc_clip[0]+x1, loc_clip[1]+y1)
     logging.info(f"{pic},{value},{loc}")
 
     res = (value < 0.05)
 
+    if res and debug:
+        h, w = template.shape[:2]
+        image_overlay = np.zeros((image.shape[0], image.shape[1], 4), dtype=np.uint8)
+        draw_rect(image_overlay, value, loc, w, h, pic)
+        pic_overlay.update_overlay(image_overlay)
+
     return res, loc
 
-def match_pic(image, template, pic, debug=False, pic_overlay=None):
+def match_pic(image, template):
 
-    if template.shape[2] == 4 and np.any(template[:, :, 3] < 255):
-        alpha = template[:,:,3]
-        result = cv2.matchTemplate(image, template, cv2.TM_SQDIFF_NORMED, mask=alpha)
-    else:
-        result = cv2.matchTemplate(image, template, cv2.TM_SQDIFF_NORMED)
+    alpha = template[:,:,3]
+    grey = cv2.cvtColor(template, cv2.COLOR_BGR2GRAY)
+    result = cv2.matchTemplate(image, grey, cv2.TM_SQDIFF_NORMED, mask=alpha)
     min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result)
-    h, w = template.shape[:2]
     val = min_val
     loc = min_loc
-    #center = (min_loc[0] + w // 2, min_loc[1] + h // 2)
-
-    if debug == 'overlay':
-        image_overlay = np.zeros((image.shape[0], image.shape[1], 4), dtype=np.uint8)
-        draw_rect(image_overlay, min_val, min_loc, w, h, pic)
-        pic_overlay.update_overlay(image_overlay)
 
     return val, loc
 

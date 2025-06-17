@@ -17,18 +17,18 @@ def skipping(log_overlay, pic_overlay, hwnd):
     log_overlay.update_text("跳过模式 ] 退出")
     time.sleep(1)
     pic_dict = {
-        'StarRail/dialog_192_52_450_120.png': {"picrange": (192,52,450,120), "shift": (-100,0)},
+        'InfinityNikky/dialog_0_0_250_136.png': {"picrange": (0,0,250,136), "shift": (100,0)},
     }
     while True:
         if is_key_pressed("]"):
             break
         image = capture(hwnd)
-        for pic, prop in pic_dict:
+        for pic, prop in pic_dict.items():
             picrange = prop['picrange']
             shift = prop['shift']
             tof, loc = find_pic(image, pic, picrange, debug=True, pic_overlay=pic_overlay)
             if tof:
-                press('MOUSELEFT', (loc[0]+shift[0], loc[1]+shift[1]))
+                #press('MOUSELEFT', (loc[0]+shift[0], loc[1]+shift[1]))
                 break
         time.sleep(0.2)
 
@@ -47,7 +47,7 @@ def mihoyo(hwnd, log_overlay, pic_overlay, active_window):
 def game_script_thread(log_overlay, pic_overlay):
     while True:
         hwnd, active_window = get_foreground_window_title()
-        if active_window in ["崩坏：星穹铁道"]:
+        if active_window in ["无限暖暖  "]:
         #if True:
             mihoyo(hwnd, log_overlay, pic_overlay, active_window)
         else:
