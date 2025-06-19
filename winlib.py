@@ -60,22 +60,24 @@ class PicOverlay:
             self.root.geometry(f"{w}x{h}+0+0")
             self.root.update()
 
-def find_pic(image, pic, picrange, debug=False, pic_overlay=None):
+def find_pic(image, pic, picrange, log_overlay, debug=False, pic_overlay=None):
     x1, y1, x2, y2 = picrange
     image_clip = image[y1:y2, x1:x2]
     template = cv2.imread(pic, cv2.IMREAD_UNCHANGED)
 
     value, loc_clip = match_pic(image_clip, template)
     loc = (loc_clip[0]+x1, loc_clip[1]+y1)
-    logging.info(f"{pic},{value},{loc}")
 
-    res = (value < 0.05)
+    res = (value < 0.01)
 
     if res and debug:
         h, w = template.shape[:2]
         image_overlay = np.zeros((image.shape[0], image.shape[1], 4), dtype=np.uint8)
         draw_rect(image_overlay, value, loc, w, h, pic)
         pic_overlay.update_overlay(image_overlay)
+    if res:
+        logging.info(f"{pic},{value}")
+        log_overlay.update_text(f"{pic},{value}")
 
     return res, loc
 

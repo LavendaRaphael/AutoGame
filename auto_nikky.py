@@ -17,7 +17,7 @@ def skipping(log_overlay, pic_overlay, hwnd):
     log_overlay.update_text("跳过模式 ] 退出")
     time.sleep(1)
     pic_dict = {
-        'InfinityNikky/dialog_0_0_250_136.png': {"picrange": (0,0,250,136), "shift": (100,0)},
+        'InfinityNikky/dialog_0_0_450_136.png': {"picrange": (0,0,450,136), "shift": (100,0)},
     }
     while True:
         if is_key_pressed("]"):
@@ -26,9 +26,9 @@ def skipping(log_overlay, pic_overlay, hwnd):
         for pic, prop in pic_dict.items():
             picrange = prop['picrange']
             shift = prop['shift']
-            tof, loc = find_pic(image, pic, picrange, debug=True, pic_overlay=pic_overlay)
+            tof, loc = find_pic(image, pic, picrange, log_overlay, debug=False, pic_overlay=pic_overlay)
             if tof:
-                #press('MOUSELEFT', (loc[0]+shift[0], loc[1]+shift[1]))
+                press('F')
                 break
         time.sleep(0.2)
 
