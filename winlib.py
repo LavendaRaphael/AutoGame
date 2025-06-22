@@ -70,14 +70,14 @@ def find_pic(image, pic, picrange, log_overlay, debug=False, pic_overlay=None):
 
     res = (value < 0.01)
 
-    if res and debug:
-        h, w = template.shape[:2]
-        image_overlay = np.zeros((image.shape[0], image.shape[1], 4), dtype=np.uint8)
-        draw_rect(image_overlay, value, loc, w, h, pic)
-        pic_overlay.update_overlay(image_overlay)
     if res:
         logging.info(f"{pic},{value}")
         log_overlay.update_text(f"{pic},{value}")
+        if debug:
+            h, w = template.shape[:2]
+            image_overlay = np.zeros((image.shape[0], image.shape[1], 4), dtype=np.uint8)
+            draw_rect(image_overlay, value, loc, w, h, pic)
+            pic_overlay.update_overlay(image_overlay)
 
     return res, loc
 

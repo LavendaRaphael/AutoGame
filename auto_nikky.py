@@ -25,7 +25,6 @@ def skipping(log_overlay, pic_overlay, hwnd):
         image = capture(hwnd)
         for pic, prop in pic_dict.items():
             picrange = prop['picrange']
-            shift = prop['shift']
             tof, loc = find_pic(image, pic, picrange, log_overlay, debug=False, pic_overlay=pic_overlay)
             if tof:
                 press('F')
