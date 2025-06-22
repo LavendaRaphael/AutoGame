@@ -18,28 +18,20 @@ def skipping(log_overlay, pic_overlay, hwnd):
     log_overlay.update_text("跳过模式 ] 退出")
     time.sleep(1)
     pic_dict = {
-        'ZZZ/dialog_2202_1650_2248_1684.png': {'type': 'diff'  , "picrange": (2202,1650,2248,1684), 'key': 'SPACE',     "shift": (100,0),},
-        'ZZZ/dialog_2138_1248_2210_1342.png': {'type': 'normal', "picrange": (2138,1248,2210,1342), 'key': 'MOUSELEFT', "shift": (100,50),},
+        'ZZZ/dialog_2138_1248_2210_1342.png': {"picrange": (2138,1248,2210,1342), 'key': 'MOUSELEFT' ,"shift": (100,50)},
+        'ZZZ/dialog_582_1404_860_1728.png'  : {"picrange": (582 ,1404,860 ,1728), 'key': 'SPACE'     ,"shift": (100,0 )},
+        'ZZZ/dialog_808_862_893_936.png'    : {"picrange": (808 ,862 ,893 ,936 ), 'key': '1'         ,"shift": (100,0 )},
+        'ZZZ/dialog_810_772_890_840.png'    : {"picrange": (810 ,772 ,890 ,840 ), 'key': '1'         ,"shift": (100,0 )},
+        'ZZZ/dialog_2472_258_2746_322.png'  : {"picrange": (2472,258 ,2746,322 ), 'key': 'SPACE'     ,"shift": (100,0 )},
     }
-    image_last = capture(hwnd)
     while True:
         if is_key_pressed("]"):
             break
-        image_now = capture(hwnd)
-        diff = cv2.absdiff(image_last, image_now)
-        _, image_diff = cv2.threshold(diff, 2, 255, cv2.THRESH_BINARY)
-        image_last = image_now
+        image = capture(hwnd)
         for pic, prop in pic_dict.items():
             picrange = prop['picrange']
-            imagetype = prop['type']
             key = prop['key']
             shift = prop['shift']
-            if imagetype=='normal':
-                image = image_now
-            elif imagetype=='diff':
-                image = image_diff
-            else:
-                raise
             tof, loc = find_pic(image, pic, picrange, log_overlay, debug=True, pic_overlay=pic_overlay)
             if tof:
                 press(key, (loc[0]+shift[0], loc[1]+shift[1]))
