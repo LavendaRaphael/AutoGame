@@ -18,10 +18,9 @@ def skipping(log_overlay, pic_overlay, hwnd):
     log_overlay.update_text("跳过模式 ] 退出")
     time.sleep(1)
     pic_dict = {
-        'ZZZ/dialog_2138_1248_2210_1342.png': {"picrange": (2138,1248,2210,1342), 'key': 'MOUSELEFT' ,"shift": (100,50)},
-        'ZZZ/dialog_582_1404_860_1728.png'  : {"picrange": (582 ,1404,860 ,1728), 'key': 'SPACE'     ,"shift": (100,0 )},
-        'ZZZ/dialog_808_862_893_936.png'    : {"picrange": (808 ,862 ,893 ,936 ), 'key': '1'         ,"shift": (100,0 )},
-        'ZZZ/dialog_810_772_890_840.png'    : {"picrange": (810 ,772 ,890 ,840 ), 'key': '1'         ,"shift": (100,0 )},
+        'ZZZ/dialog_2073_1253_2128_1306.png': {"picrange": (2073,1153,2128,1324), 'key': '1'         ,"shift": (100,50)},
+        'ZZZ/dialog_582_1404_860_1728.png'  : {"picrange": (582 ,1386,860 ,1728), 'key': 'SPACE'     ,"shift": (100,0 )},
+        'ZZZ/dialog_810_772_890_840.png'    : {"picrange": (810 ,772 ,890 ,934 ), 'key': '1'         ,"shift": (100,0 )},
         'ZZZ/dialog_2472_258_2746_322.png'  : {"picrange": (2472,258 ,2746,322 ), 'key': 'SPACE'     ,"shift": (100,0 )},
     }
     while True:
@@ -32,6 +31,7 @@ def skipping(log_overlay, pic_overlay, hwnd):
             picrange = prop['picrange']
             key = prop['key']
             shift = prop['shift']
+            #picrange = (0,0,2880,1800)
             tof, loc = find_pic(image, pic, picrange, log_overlay, debug=True, pic_overlay=pic_overlay)
             if tof:
                 press(key, (loc[0]+shift[0], loc[1]+shift[1]))

@@ -68,11 +68,11 @@ def find_pic(image, pic, picrange, log_overlay, debug=False, pic_overlay=None):
     value, loc_clip = match_pic(image_clip, template)
     loc = (loc_clip[0]+x1, loc_clip[1]+y1)
 
-    res = (value < 0.01)
+    res = (value < 0.015)
 
     if res:
-        logging.info(f"{pic},{value}")
-        log_overlay.update_text(f"{pic},{value}")
+        logging.info(f"{pic} {loc} {value}")
+        log_overlay.update_text(f"{pic} {loc} {value:.3f}")
         if debug:
             h, w = template.shape[:2]
             image_overlay = np.zeros((image.shape[0], image.shape[1], 4), dtype=np.uint8)
@@ -93,13 +93,11 @@ def match_pic(image, template):
     return val, loc
 
 def draw_rect(image_overlay, val, loc, w, h, pic):
-    center_x = loc[0] + w // 2
-    center_y = loc[1] + h // 2
     cv2.rectangle(image_overlay, loc, (loc[0] + w, loc[1] + h), (0, 0, 255, 180), 2)
-    cv2.circle(image_overlay, (center_x, center_y), 5, (0, 255, 0, 200), -1)
-    cv2.putText(image_overlay, f"{pic} {val:.2f}", (loc[0], loc[1] - 10), 
+    #cv2.circle(image_overlay, (center_x, center_y), 5, (0, 255, 0, 200), -1)
+    cv2.putText(image_overlay, f"{pic} {val:.3f}", (loc[0], loc[1] - 10), 
                cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255, 255), 1, cv2.LINE_AA)
-    cv2.putText(image_overlay, f"({center_x}, {center_y})", (loc[0], loc[1] + h + 30), 
+    cv2.putText(image_overlay, f"{loc}", (loc[0], loc[1] + h + 30), 
                cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 200, 255, 255), 1, cv2.LINE_AA)
 
 def capture(hwnd: wintypes.HWND):
