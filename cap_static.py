@@ -1,10 +1,19 @@
 import cv2
-import numpy as np
 from winlib import get_foreground_window_title, is_key_pressed, capture, LogOverlay
 import time
 import sys
 from ctypes import windll
 import tkinter as tk
+import logging
+import cv2
+
+logging.basicConfig(
+    filename='debug.log',
+    filemode='w',
+    level=logging.DEBUG,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    encoding='utf-8'
+)
 
 def main():
 
@@ -24,6 +33,7 @@ def main():
             pic = f"cap/{time.strftime('%Y%m%d_%H%M%S')}.png"
             cv2.imwrite(pic, image)
             log_overlay.update_text(pic)
+            logging.info(f"{active_window} {pic}")
         time.sleep(1)
 
 if __name__ == "__main__":

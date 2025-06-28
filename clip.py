@@ -2,13 +2,13 @@ import cv2
 import numpy as np
 def main():
     pic_list = [
-        'cap/20250624_220651.png',
-        'cap/20250624_220846.png',
-        'cap/20250624_221009.png',
-        'cap/20250624_221238.png',
+        'cap/20250628_115531.png',
+        'cap/20250628_115545.png',
+        'cap/20250628_115614.png',
+        'cap/20250628_120506.png',
     ]
-    x1, y1 = 2073, 1253
-    x2, y2 = 2128, 1306
+    x1, y1 = 2314, 162
+    x2, y2 = 2766, 236
 
     image = cv2.imread(pic_list[0], cv2.IMREAD_UNCHANGED)
     diff = np.zeros(image.shape[:2])
@@ -20,6 +20,7 @@ def main():
             image1 = cv2.imread(pic_list[i], cv2.IMREAD_UNCHANGED)
             image2 = cv2.imread(pic_list[j], cv2.IMREAD_UNCHANGED)
             diff_12 = cv2.absdiff(image1, image2)
+            _, diff_12 = cv2.threshold(diff_12, 2, 255, cv2.THRESH_TOZERO)
             diff += diff_12
     _, diff = cv2.threshold(diff, 255, 255, cv2.THRESH_TRUNC)
     diff = diff.astype(np.uint8)
@@ -33,5 +34,6 @@ def main():
     print(clip.shape, alpha.shape)
     bgra_image = cv2.merge([clip, clip, clip, alpha])
     cv2.imwrite(f'cap/clip_{x1}_{y1}_{x2}_{y2}.png', bgra_image)
+
 if __name__ == "__main__":
     main()

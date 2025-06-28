@@ -2,8 +2,7 @@ import time
 import sys
 import threading
 from ctypes import windll
-import winlib
-from winlib import get_foreground_window_title, is_key_pressed, press, LogOverlay
+from winlib import get_foreground_window_title, is_key_pressed, LogOverlay, fishing, skipping
 import logging
 
 # 配置日志记录
@@ -14,32 +13,6 @@ logging.basicConfig(
     format='%(asctime)s - %(levelname)s - %(message)s',
     encoding='utf-8'
 )
-# 鱼类模式
-def fishing(overlay):
-    txt = "钓鱼模式, 按 A 拉线"
-    overlay.update_text(txt)
-    time.sleep(1)
-    while True:
-        if is_key_pressed("A"):
-            overlay.update_text("拉线中 F 退出")
-            while not is_key_pressed("F"):
-                press('MOUSERIGHT')
-                time.sleep(0.1)
-            overlay.update_text(txt)
-        elif is_key_pressed("]"):
-            break
-        time.sleep(0.1)
-        
-def skipping(overlay, skip_key):
-    overlay.update_text("跳过模式 ] 退出")
-    time.sleep(1)
-    while True:
-        if is_key_pressed("]"):
-            break
-        else:
-            for keyname in skip_key:
-                press(keyname)
-            time.sleep(0.2)
 
 # 游戏模式
 def nikky(hwnd, overlay, active_window):

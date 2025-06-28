@@ -6,6 +6,56 @@ import numpy as np
 import cv2
 from PIL import Image, ImageTk
 import logging
+from datetime import datetime
+
+def skipping_cv(log_overlay, pic_overlay, hwnd, pic_dict):
+    txt = "跳过模式 ] 退出"
+    log_overlay.update_text(txt)
+    time.sleep(1)
+    while True:
+        if is_key_pressed("]"):
+            pic_overlay.hide_overlay()
+            break
+        image = capture(hwnd)
+        for pic, prop in pic_dict.items():
+            picrange = prop['picrange']
+            key = prop['key']
+            shift = prop['shift']
+            #picrange = (0,0,2880,1800)
+            tof, loc = find_pic(image, pic, picrange, log_overlay, debug=True, pic_overlay=pic_overlay)
+            if tof:
+                press(key, (loc[0]+shift[0], loc[1]+shift[1]))
+                break
+        time.sleep(0.2)
+        if not tof:
+            log_overlay.update_text(txt)
+
+def fishing(overlay):
+    txt = "钓鱼模式, 按 A 拉线"
+    overlay.update_text(txt)
+    time.sleep(1)
+    while True:
+        if is_key_pressed("A"):
+            overlay.update_text("拉线中 F 退出")
+            while not is_key_pressed("F"):
+                press('MOUSERIGHT')
+                time.sleep(0.1)
+            overlay.update_text(txt)
+        elif is_key_pressed("]"):
+            break
+        time.sleep(0.1)
+        
+def skipping(overlay, skip_key):
+    overlay.update_text("跳过模式 ] 退出")
+    time.sleep(1)
+    while True:
+        if is_key_pressed("]"):
+            break
+        else:
+            for keyname in skip_key:
+                press(keyname)
+            time.sleep(0.2)
+
 class LogOverlay:
     def __init__(self, master):
         self.root = tk.Toplevel(master)
@@ -18,20 +68,25 @@ class LogOverlay:
         screen_width = self.root.winfo_screenwidth()
         screen_height = self.root.winfo_screenheight()
 
-        self.root.geometry(f"1000x100+0+{screen_height-100}")
+        self.root.geometry(f"{screen_width}x100+0+{screen_height-100}")
 
         self.label = tk.Label(self.root, text="启动", font=("SimHei", 12, "bold"), fg="white", bg="black", anchor="w")
         self.label.pack(fill=tk.BOTH, expand=True)
+        self.current_text = '启动'
 
     def update_text(self, text):
-        self.label.config(text=text)  # 更新显示的内容
-        self.root.update()
+        if self.current_text != text:
+            timestamp = datetime.now().strftime("%H:%M:%S") #
+            display_text = f"[{timestamp}] {text}" #
+            self.label.config(text=display_text)
+            self.root.update()
+            self.current_text = text
 
 class PicOverlay:
     def __init__(self, master):
         self.root = tk.Toplevel(master)
-        self.root.wm_attributes("-topmost", True)  # 置顶
-        self.root.wm_attributes("-transparentcolor", "black")
+        self.root.attributes("-topmost", True)  # 置顶
+        self.root.attributes("-transparentcolor", "black")
         self.root.overrideredirect(True)  # 无边框
         
         # 初始位置（右上角）
@@ -40,25 +95,33 @@ class PicOverlay:
         self.root.geometry("300x200+{}+10".format(self.screen_width-310))
         
         init_img = np.zeros((200,300,4), dtype=np.uint8)
-        img_pil = Image.fromarray(cv2.cvtColor(init_img, cv2.COLOR_BGRA2RGBA))
+        img_pil = Image.fromarray(init_img)
         img_tk = ImageTk.PhotoImage(image=img_pil)
 
         self.label = tk.Label(self.root, image=img_tk, bg="black")
         self.label.pack()
         
     def update_overlay(self, overlay_image):
-        if overlay_image is not None:
-            # 将OpenCV图像转换为PIL格式
-            overlay_image = cv2.cvtColor(overlay_image, cv2.COLOR_BGRA2RGBA)
-            img_pil = Image.fromarray(overlay_image)
-            img_tk = ImageTk.PhotoImage(image=img_pil)
-            
-            self.label.configure(image=img_tk)
-            self.label.image = img_tk  # 保持引用
-            
-            h, w = overlay_image.shape[:2]
-            self.root.geometry(f"{w}x{h}+0+0")
-            self.root.update()
+        # 将OpenCV图像转换为PIL格式
+        overlay_image = cv2.cvtColor(overlay_image, cv2.COLOR_BGRA2RGBA)
+        img_pil = Image.fromarray(overlay_image)
+        img_tk = ImageTk.PhotoImage(image=img_pil)
+        
+        self.label.configure(image=img_tk)
+        self.label.image = img_tk  # 保持引用
+        
+        h, w = overlay_image.shape[:2]
+        self.root.geometry(f"{w}x{h}+0+0")
+        self.root.update()
+
+    def hide_overlay(self): # Add this method
+        init_img = np.zeros((1, 1, 4), dtype=np.uint8) # Create a 1x1 black image
+        img_pil = Image.fromarray(init_img)
+        img_tk = ImageTk.PhotoImage(image=img_pil)
+        self.label.configure(image=img_tk)
+        self.label.image = img_tk
+        self.root.geometry("1x1+0+0") # Make the window very small
+        self.root.update()
 
 def find_pic(image, pic, picrange, log_overlay, debug=False, pic_overlay=None):
     x1, y1, x2, y2 = picrange
@@ -78,6 +141,9 @@ def find_pic(image, pic, picrange, log_overlay, debug=False, pic_overlay=None):
             image_overlay = np.zeros((image.shape[0], image.shape[1], 4), dtype=np.uint8)
             draw_rect(image_overlay, value, loc, w, h, pic)
             pic_overlay.update_overlay(image_overlay)
+    else:
+        if debug:
+            pic_overlay.hide_overlay()
 
     return res, loc
 
