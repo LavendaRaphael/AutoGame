@@ -29,6 +29,7 @@ def skipping_cv(log_overlay, pic_overlay, hwnd, pic_dict):
         time.sleep(0.2)
         if not tof:
             log_overlay.update_text(txt)
+            pic_overlay.hide_overlay()
 
 def fishing(overlay):
     txt = "钓鱼模式, 按 A 拉线"
@@ -137,9 +138,6 @@ def find_pic(image, pic, picrange, log_overlay, debug=False, pic_overlay=None):
             image_overlay = np.zeros((image.shape[0], image.shape[1], 4), dtype=np.uint8)
             draw_rect(image_overlay, value, loc, w, h, pic)
             pic_overlay.update_overlay(image_overlay)
-    else:
-        if debug:
-            pic_overlay.hide_overlay()
 
     return res, loc
 

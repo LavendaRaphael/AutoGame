@@ -2,13 +2,13 @@ import cv2
 import numpy as np
 def main():
     pic_list = [
-        'cap/20250628_115531.png',
-        'cap/20250628_115545.png',
-        'cap/20250628_115614.png',
-        'cap/20250628_120506.png',
+        'cap/20250622_131842.png',
+        'cap/20250622_132135.png',
+        'cap/20250622_132239.png',
+        'cap/20250705_211809.png',
     ]
-    x1, y1 = 2314, 162
-    x2, y2 = 2766, 236
+    x1, y1 = 1845, 1027
+    x2, y2 = 1898, 1077
 
     image = cv2.imread(pic_list[0], cv2.IMREAD_UNCHANGED)
     diff = np.zeros(image.shape[:2])

@@ -56,7 +56,9 @@ def StarRail(hwnd, log_overlay, pic_overlay, active_window):
             break
         if is_key_pressed(";"):
             pic_dict = {
-                'StarRail/dialog_192_52_450_120.png': {"picrange": (192,52,450,120), 'key': 'SPACE', "shift": (-100,0)},
+                'StarRail/dialog_1845_1027_1898_1077.png': {"picrange": (1845,1027,1898,1322), 'key': '1'    , "shift": (-100,0)},
+                'StarRail/dialog_1845_1149_1898_1200.png': {"picrange": (1845,1149,1898,1200), 'key': '1'    , "shift": (-100,0)},
+                'StarRail/dialog_192_52_450_120.png'     : {"picrange": (192,   52, 450, 120), 'key': 'SPACE', "shift": (-100,0)},
             }
             skipping_cv(log_overlay, pic_overlay, hwnd, pic_dict)
             log_overlay.update_text(txt)
