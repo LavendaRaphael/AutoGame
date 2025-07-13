@@ -21,7 +21,7 @@ def skipping_cv(log_overlay, pic_overlay, hwnd, pic_dict):
             picrange = prop['picrange']
             key = prop['key']
             shift = prop['shift']
-            picrange = (0,0,2880,1800)
+            #picrange = (0,0,2880,1800)
             tof, loc = find_pic(image, pic, picrange, log_overlay, debug=True, pic_overlay=pic_overlay)
             if tof:
                 press(key, (loc[0]+shift[0], loc[1]+shift[1]))
