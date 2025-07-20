@@ -1,5 +1,5 @@
 import cv2
-from winlib import get_foreground_window_title, is_key_pressed, capture, LogOverlay
+from winlib import get_window_title, is_key_pressed, capture, LogOverlay
 import time
 import sys
 from ctypes import windll
@@ -27,7 +27,7 @@ def main():
     
     log_overlay = LogOverlay(root)
     while True:
-        hwnd, active_window = get_foreground_window_title()
+        hwnd, active_window = get_window_title()
         if is_key_pressed(";"):
             image = capture(hwnd)
             pic = f"cap/{time.strftime('%Y%m%d_%H%M%S')}.png"

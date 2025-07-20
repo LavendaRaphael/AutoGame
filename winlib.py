@@ -8,27 +8,44 @@ from PIL import Image, ImageTk
 import logging
 from datetime import datetime
 
-def skipping_cv(log_overlay, pic_overlay, hwnd, pic_dict):
-    txt = "跳过模式 ] 退出"
-    log_overlay.update_text(txt)
+def capture_mode(hwnd, log_overlay):
+    _, active_window = get_window_title(hwnd)
+    title = log_overlay.title
+    log_overlay.update_title(f"{active_window} 截图模式 ; 截图 ] 退出")
+    while True:
+        if is_key_pressed(";"):
+            image = capture(hwnd)
+            pic = f"cap/{time.strftime('%Y%m%d_%H%M%S')}.png"
+            cv2.imwrite(pic, image)
+            log_overlay.update_text(pic)
+        elif is_key_pressed("]"):
+            log_overlay.update_title(title)
+            break
+
+def skipping_cv(log_overlay, pic_overlay, hwnd, pic_list):
+    _, active_window = get_window_title(hwnd)
+    title = log_overlay.title
+    log_overlay.update_title(f"{active_window} 跳过模式 ] 退出")
     time.sleep(1)
     while True:
         if is_key_pressed("]"):
             pic_overlay.hide_overlay()
+            log_overlay.update_title(title)
             break
         image = capture(hwnd)
-        for pic, prop in pic_dict.items():
-            picrange = prop['picrange']
+        for prop in pic_list:
+            pic = prop['pic']
             key = prop['key']
             shift = prop['shift']
-            #picrange = (0,0,2880,1800)
+            picxy = prop['picxy']
+            picwh = prop['picwh']
+            picrange = (picxy[0], picxy[1], picxy[0]+picwh[0], picxy[1]+picwh[1])
             tof, loc = find_pic(image, pic, picrange, log_overlay, debug=True, pic_overlay=pic_overlay)
             if tof:
                 press(key, (loc[0]+shift[0], loc[1]+shift[1]))
                 break
         time.sleep(0.2)
         if not tof:
-            log_overlay.update_text(txt)
             pic_overlay.hide_overlay()
 
 def fishing(overlay):
@@ -71,17 +88,29 @@ class LogOverlay:
 
         self.root.geometry(f"{screen_width}x100+0+{screen_height-100}")
 
-        self.label = tk.Label(self.root, text="启动", font=("SimHei", 12, "bold"), fg="white", bg="black", anchor="w")
+        self.label = tk.Label(self.root, text="", font=("SimHei", 12, "bold"), fg="white", bg="black", anchor="w", justify='left')
         self.label.pack(fill=tk.BOTH, expand=True)
-        self.current_text = '启动'
+
+        self.title = 'AutoGame'
+        self.timestamp = datetime.now().strftime("%H:%M:%S")
+        self.text = '启动'
+        self.update()
+
+    def update_title(self, title):
+        self.title = title
+        self.update()
 
     def update_text(self, text):
-        if self.current_text != text:
-            timestamp = datetime.now().strftime("%H:%M:%S")
-            display_text = f"[{timestamp}] {text}"
-            self.label.config(text=display_text)
-            self.root.update()
-            self.current_text = text
+        if self.text != text:
+            self.text = text
+            self.timestamp = datetime.now().strftime("%H:%M:%S")
+            self.update()
+
+    def update(self):
+        display_text = f"{self.title}\n{self.timestamp} {self.text}"
+        self.label.config(text=display_text)
+        self.root.update()
+
 
 class PicOverlay:
     def __init__(self, master):
@@ -259,8 +288,9 @@ def vk_codes(name):
 
     return codes[name]
 
-def get_foreground_window_title():
-    hwnd = windll.user32.GetForegroundWindow()
+def get_window_title(hwnd=None):
+    if hwnd is None:
+        hwnd = windll.user32.GetForegroundWindow()
     length = windll.user32.GetWindowTextLengthW(hwnd)
     buffer = ctypes.create_unicode_buffer(length + 1)
     windll.user32.GetWindowTextW(hwnd, buffer, length + 1)

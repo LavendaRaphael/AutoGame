@@ -1,10 +1,11 @@
-from winlib import get_foreground_window_title, is_key_pressed, LogOverlay, PicOverlay, skipping_cv
+from winlib import get_window_title, is_key_pressed, LogOverlay, PicOverlay, skipping_cv, capture_mode
 import time
 from ctypes import windll
 import threading
 import sys
 import tkinter as tk
 import logging
+
 # 配置日志记录
 logging.basicConfig(
     filename='debug.log',
@@ -14,83 +15,90 @@ logging.basicConfig(
     encoding='utf-8'
 )
 
-def ZZZ(hwnd, log_overlay, pic_overlay, active_window):
-    txt = f"{active_window} ; 跳过"
-    log_overlay.update_text(txt)
+def ZZZ(hwnd, log_overlay, pic_overlay):
+    _, active_window = get_window_title(hwnd)
+    title = f"{active_window} ; 跳过"
+    log_overlay.update_title(title)
     while True:
-        hwnd_x, active_window = get_foreground_window_title()
+        hwnd_x, _ = get_window_title()
         if hwnd_x != hwnd:
             break
         if is_key_pressed(";"):
-            pic_dict = {
-                'ZZZ/dialog_2073_1253_2128_1306.png': {"picrange": (2073,1153,2128,1324), 'key': '1'    ,"shift": (100,50)},
-                'ZZZ/dialog_582_1404_860_1728.png'  : {"picrange": (582 ,1386,860 ,1728), 'key': 'SPACE',"shift": (100,0 )},
-                'ZZZ/dialog_810_772_890_840.png'    : {"picrange": (810 ,772 ,890 ,934 ), 'key': '1'    ,"shift": (100,0 )},
-                'ZZZ/dialog_2472_258_2746_322.png'  : {"picrange": (2472,258 ,2746,322 ), 'key': 'SPACE',"shift": (100,0 )},
-            }
-            skipping_cv(log_overlay, pic_overlay, hwnd, pic_dict)
+            pic_list = [
+                {'pic':'ZZZ/dialog_2140_1130_2220_1230.png', "picxy": (2140,1130), 'picwh': (80 ,100), 'key': 'MOUSELEFT',"shift": (100,50)},
+                {'pic':'ZZZ/dialog_2140_1230_2220_1330.png', "picxy": (2140,1248), 'picwh': (80 ,100), 'key': 'MOUSELEFT',"shift": (100,50)},
+                {'pic':'ZZZ/dialog_582_1404_860_1728.png'  , "picxy": (582 ,1404), 'picwh': (278,324), 'key': 'SPACE'    ,"shift": (100,0)},
+                {'pic':'ZZZ/dialog_2140_1230_2220_1330.png', "picxy": (2140,1230), 'picwh': (80 ,100), 'key': 'MOUSELEFT',"shift": (100,50)},
+                {'pic':'ZZZ/dialog_582_1404_860_1728.png'  , "picxy": (582 ,1386), 'picwh': (278,324), 'key': 'SPACE'    ,"shift": (100,0)},
+                {'pic':'ZZZ/dialog_810_772_890_840.png'    , "picxy": (810 ,772 ), 'picwh': (80 ,162), 'key': '1'        ,"shift": (100,0)},
+                {'pic':'ZZZ/dialog_810_772_890_840.png'    , "picxy": (810 ,678 ), 'picwh': (80 ,162), 'key': '1'        ,"shift": (100,0)},
+                {'pic':'ZZZ/dialog_2472_258_2746_322.png'  , "picxy": (2472,258 ), 'picwh': (274,64 ), 'key': 'SPACE'    ,"shift": (100,0)},
+            ]
+            skipping_cv(log_overlay, pic_overlay, hwnd, pic_list)
+        elif is_key_pressed("["):
+            capture_mode(hwnd, log_overlay)
+        time.sleep(0.2)
+
+def Nikky(hwnd, log_overlay, pic_overlay):
+    _, active_window = get_window_title(hwnd)
+    txt = f"{active_window} ; 跳过"
+    log_overlay.update_title(txt)
+    while True:
+        hwnd_x, active_window = get_window_title()
+        if hwnd_x != hwnd:
+            break
+        if is_key_pressed(";"):
+            pic_list = [
+                {'pic':'InfinityNikky/dialog_0_0_450_136.png', "picrange": (0,0,450,136), 'key': 'F', "shift": (100,0)},
+            ]
+            skipping_cv(log_overlay, pic_overlay, hwnd, pic_list)
             log_overlay.update_text(txt)
         time.sleep(0.2)
 
-def Nikky(hwnd, log_overlay, pic_overlay, active_window):
+def StarRail(hwnd, log_overlay, pic_overlay):
+    _, active_window = get_window_title(hwnd)
     txt = f"{active_window} ; 跳过"
-    log_overlay.update_text(txt)
+    log_overlay.update_title(txt)
     while True:
-        hwnd_x, active_window = get_foreground_window_title()
+        hwnd_x, active_window = get_window_title()
         if hwnd_x != hwnd:
             break
         if is_key_pressed(";"):
-            pic_dict = {
-                'InfinityNikky/dialog_0_0_450_136.png': {"picrange": (0,0,450,136), 'key': 'F', "shift": (100,0)},
-            }
-            skipping_cv(log_overlay, pic_overlay, hwnd, pic_dict)
+            pic_list = [
+                {'pic':'StarRail/dialog_1885_1150_2020_1200.png', "picrange": (1885,1150,2020,1322), 'key': 'MOUSELEFT', "shift": (200,0)},
+                {'pic':'StarRail/dialog_192_52_450_120.png'     , "picrange": (192,   52, 450, 120), 'key': 'SPACE', "shift": (-100,0)},
+            ]
+            skipping_cv(log_overlay, pic_overlay, hwnd, pic_list)
             log_overlay.update_text(txt)
         time.sleep(0.2)
 
-def StarRail(hwnd, log_overlay, pic_overlay, active_window):
+def Reverse1999(hwnd, log_overlay, pic_overlay):
+    _, active_window = get_window_title(hwnd)
     txt = f"{active_window} ; 跳过"
-    log_overlay.update_text(txt)
+    log_overlay.update_title(txt)
     while True:
-        hwnd_x, active_window = get_foreground_window_title()
+        hwnd_x, active_window = get_window_title()
         if hwnd_x != hwnd:
             break
         if is_key_pressed(";"):
-            pic_dict = {
-                'StarRail/dialog_1885_1150_2020_1200.png': {"picrange": (1885,1150,2020,1322), 'key': 'MOUSELEFT', "shift": (200,0)},
-                #'StarRail/dialog_1845_1027_1898_1077.png': {"picrange": (1845,1027,1898,1322), 'key': '1'    , "shift": (-100,0)},
-                #'StarRail/dialog_1845_1149_1898_1200.png': {"picrange": (1845,1149,1898,1200), 'key': '1'    , "shift": (-100,0)},
-                'StarRail/dialog_192_52_450_120.png'     : {"picrange": (192,   52, 450, 120), 'key': 'SPACE', "shift": (-100,0)},
-            }
-            skipping_cv(log_overlay, pic_overlay, hwnd, pic_dict)
-            log_overlay.update_text(txt)
-        time.sleep(0.2)
-
-def Reverse1999(hwnd, log_overlay, pic_overlay, active_window):
-    txt = f"{active_window} ; 跳过"
-    log_overlay.update_text(txt)
-    while True:
-        hwnd_x, active_window = get_foreground_window_title()
-        if hwnd_x != hwnd:
-            break
-        if is_key_pressed(";"):
-            pic_dict = {
-                'Reverse1999/dialog_2314_162_2766_236.png': {"picrange": (2314,162,2766,236), 'key': 'SPACE', "shift": (-100,0)},
-            }
-            skipping_cv(log_overlay, pic_overlay, hwnd, pic_dict)
+            pic_list = [
+                {'pic':'Reverse1999/dialog_2314_162_2766_236.png', "picrange": (2314,162,2766,236), 'key': 'SPACE', "shift": (-100,0)},
+            ]
+            skipping_cv(log_overlay, pic_overlay, hwnd, pic_list)
             log_overlay.update_text(txt)
         time.sleep(0.2)
     
 def game_script_thread(log_overlay, pic_overlay):
     while True:
-        hwnd, active_window = get_foreground_window_title()
+        hwnd, active_window = get_window_title()
         if active_window == "绝区零":
-            ZZZ(hwnd, log_overlay, pic_overlay, active_window)
+            ZZZ(hwnd, log_overlay, pic_overlay)
         elif active_window == "无限暖暖  ":
-            Nikky(hwnd, log_overlay, pic_overlay, active_window)
+            Nikky(hwnd, log_overlay, pic_overlay)
         elif active_window == "崩坏：星穹铁道":
-            StarRail(hwnd, log_overlay, pic_overlay, active_window)
+            StarRail(hwnd, log_overlay, pic_overlay)
         elif active_window == "MuMu模拟器12":
-            Reverse1999(hwnd, log_overlay, pic_overlay, active_window)
+            Reverse1999(hwnd, log_overlay, pic_overlay)
         else:
             log_overlay.update_text(f"当前窗口: {active_window}")
         time.sleep(1)
