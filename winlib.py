@@ -40,39 +40,13 @@ def skipping_cv(log_overlay, pic_overlay, hwnd, pic_list):
             picxy = prop['picxy']
             picwh = prop['picwh']
             picrange = (picxy[0], picxy[1], picxy[0]+picwh[0], picxy[1]+picwh[1])
-            tof, loc = find_pic(image, pic, picrange, log_overlay, debug=True, pic_overlay=pic_overlay)
+            tof, loc = find_pic(image, pic, picrange, log_overlay, pic_overlay=pic_overlay)
             if tof:
                 press(key, (loc[0]+shift[0], loc[1]+shift[1]))
                 break
         time.sleep(0.2)
         if not tof:
             pic_overlay.hide_overlay()
-
-def fishing(overlay):
-    txt = "钓鱼模式, 按 A 拉线"
-    overlay.update_text(txt)
-    time.sleep(1)
-    while True:
-        if is_key_pressed("A"):
-            overlay.update_text("拉线中 F 退出")
-            while not is_key_pressed("F"):
-                press('MOUSERIGHT')
-                time.sleep(0.1)
-            overlay.update_text(txt)
-        elif is_key_pressed("]"):
-            break
-        time.sleep(0.1)
-        
-def skipping(overlay, skip_key):
-    overlay.update_text("跳过模式 ] 退出")
-    time.sleep(1)
-    while True:
-        if is_key_pressed("]"):
-            break
-        else:
-            for keyname in skip_key:
-                press(keyname)
-            time.sleep(0.2)
 
 class LogOverlay:
     def __init__(self, master):
@@ -119,12 +93,11 @@ class PicOverlay:
         self.root.attributes("-transparentcolor", "black")
         self.root.overrideredirect(True)
         
-        # 初始位置（右上角）
         self.screen_width = self.root.winfo_screenwidth()
         self.screen_height = self.root.winfo_screenheight()
-        self.root.geometry("1x1+0+0")
+        self.root.geometry(f"{self.screen_width}x{self.screen_height}+0+0")
         
-        init_img = np.zeros((1,1,4), dtype=np.uint8)
+        init_img = np.zeros((self.screen_height,self.screen_width,4), dtype=np.uint8)
         img_pil = Image.fromarray(init_img)
         self.init_img = ImageTk.PhotoImage(image=img_pil)
 
@@ -140,16 +113,14 @@ class PicOverlay:
         self.label.image = img_tk
         
         h, w = overlay_image.shape[:2]
-        self.root.geometry(f"{w}x{h}+0+0")
         self.root.update()
 
     def hide_overlay(self):
         self.label.configure(image=self.init_img)
         self.label.image = self.init_img
-        self.root.geometry("1x1+0+0")
         self.root.update()
 
-def find_pic(image, pic, picrange, log_overlay, debug=False, pic_overlay=None):
+def find_pic(image, pic, picrange, log_overlay, pic_overlay):
     x1, y1, x2, y2 = picrange
     image_clip = image[y1:y2, x1:x2]
     template = cv2.imread(pic, cv2.IMREAD_UNCHANGED)
@@ -162,11 +133,8 @@ def find_pic(image, pic, picrange, log_overlay, debug=False, pic_overlay=None):
     if res:
         logging.info(f"{pic} {loc} {value}")
         log_overlay.update_text(f"{pic} {loc} {value:.3f}")
-        if debug:
-            h, w = template.shape[:2]
-            image_overlay = np.zeros((image.shape[0], image.shape[1], 4), dtype=np.uint8)
-            draw_rect(image_overlay, value, loc, w, h, pic)
-            pic_overlay.update_overlay(image_overlay)
+        h, w = template.shape[:2]
+        draw_rect(pic_overlay, loc, w, h, f"{pic} {value:.3f}")
 
     return res, loc
 
@@ -181,13 +149,14 @@ def match_pic(image, template):
 
     return val, loc
 
-def draw_rect(image_overlay, val, loc, w, h, pic):
+def draw_rect(pic_overlay, loc, w, h, txt):
+    image_overlay = np.zeros((pic_overlay.screen_height, pic_overlay.screen_width, 4), dtype=np.uint8)
     cv2.rectangle(image_overlay, loc, (loc[0] + w, loc[1] + h), (0, 0, 255, 180), 2)
-    #cv2.circle(image_overlay, (center_x, center_y), 5, (0, 255, 0, 200), -1)
-    cv2.putText(image_overlay, f"{pic} {val:.3f}", (loc[0], loc[1] - 10), 
+    cv2.putText(image_overlay, txt, (loc[0], loc[1] - 10), 
                cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255, 255), 1, cv2.LINE_AA)
     cv2.putText(image_overlay, f"{loc}", (loc[0], loc[1] + h + 30), 
                cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 200, 255, 255), 1, cv2.LINE_AA)
+    pic_overlay.update_overlay(image_overlay)
 
 def capture(hwnd: wintypes.HWND):
     

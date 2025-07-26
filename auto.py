@@ -14,6 +14,17 @@ logging.basicConfig(
     encoding='utf-8'
 )
 
+def skipping(overlay, skip_key):
+    overlay.update_text("跳过模式 ] 退出")
+    time.sleep(1)
+    while True:
+        if is_key_pressed("]"):
+            break
+        else:
+            for keyname in skip_key:
+                press(keyname)
+            time.sleep(0.2)
+
 # 游戏模式
 def nikky(hwnd, overlay, active_window):
     txt = f"{active_window} [ 钓鱼 ; 跳过"
