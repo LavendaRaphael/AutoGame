@@ -28,7 +28,7 @@ def game_script_thread(log_overlay, pic_overlay):
             Nikky(hwnd, log_overlay, pic_overlay)
         elif active_window == "崩坏：星穹铁道":
             StarRail(hwnd, log_overlay, pic_overlay)
-        elif active_window == "MuMu模拟器12":
+        elif active_window == "MuMu安卓设备":
             Reverse1999(hwnd, log_overlay, pic_overlay)
         else:
             log_overlay.update_text(f"当前窗口: {active_window}")
