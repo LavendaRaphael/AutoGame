@@ -1,4 +1,4 @@
-from winlib import get_window_title, LogOverlay, PicOverlay
+from winlib import get_window_title, LogOverlay, PicOverlay, is_key_pressed
 import time
 from ctypes import windll
 import threading
@@ -9,6 +9,7 @@ from InfinityNikky.InfinityNikky import Nikky
 from ZZZ.ZZZ import ZZZ
 from StarRail.StarRail import StarRail
 from Reverse1999.Reverse1999 import Reverse1999
+from FGO.FGO import FGO
 
 # 配置日志记录
 logging.basicConfig(
@@ -29,7 +30,11 @@ def game_script_thread(log_overlay, pic_overlay):
         elif active_window == "崩坏：星穹铁道":
             StarRail(hwnd, log_overlay, pic_overlay)
         elif active_window == "MuMu安卓设备":
-            Reverse1999(hwnd, log_overlay, pic_overlay)
+            log_overlay.update_title(f"MuMu安卓设备: 1 重返未来 2 FGO")
+            if is_key_pressed("1"):
+                Reverse1999(hwnd, log_overlay, pic_overlay)
+            elif is_key_pressed("2"):
+                FGO(hwnd, log_overlay, pic_overlay)
         else:
             log_overlay.update_text(f"当前窗口: {active_window}")
         time.sleep(1)

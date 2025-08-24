@@ -42,7 +42,9 @@ def skipping_cv(log_overlay, pic_overlay, hwnd, pic_list):
             picrange = (picxy[0], picxy[1], picxy[0]+picwh[0], picxy[1]+picwh[1])
             tof, loc = find_pic(image, pic, picrange, log_overlay, pic_overlay=pic_overlay)
             if tof:
-                press(key, (loc[0]+shift[0], loc[1]+shift[1]))
+                for (x,y) in shift:
+                    press(key, (loc[0]+x, loc[1]+y))
+                    time.sleep(0.1)
                 break
         time.sleep(0.2)
         if not tof:
@@ -245,6 +247,7 @@ def vk_codes(name):
         "LBUTTON": 0x01,
         "RBUTTON": 0x02,
         "1": 0x31,
+        "2": 0x32,
         "A": 0x41,
         "E": 0x45,
         "F": 0x46,
