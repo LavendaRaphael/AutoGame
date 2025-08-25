@@ -22,17 +22,7 @@ def capture_mode(hwnd, log_overlay):
             log_overlay.update_title(title)
             break
 
-def skipping_cv(log_overlay, pic_overlay, hwnd, pic_list):
-    _, active_window = get_window_title(hwnd)
-    title = log_overlay.title
-    log_overlay.update_title(f"{active_window} 跳过模式 ] 退出")
-    time.sleep(1)
-    while True:
-        if is_key_pressed("]"):
-            pic_overlay.hide_overlay()
-            log_overlay.update_title(title)
-            break
-        image = capture(hwnd)
+def click_piclist(image, pic_list, log_overlay, pic_overlay):
         for prop in pic_list:
             pic = prop['pic']
             key = prop['key']
@@ -49,6 +39,98 @@ def skipping_cv(log_overlay, pic_overlay, hwnd, pic_list):
         time.sleep(0.2)
         if not tof:
             pic_overlay.hide_overlay()
+
+def skipping_cv(log_overlay, pic_overlay, hwnd, pic_list):
+    _, active_window = get_window_title(hwnd)
+    title = log_overlay.title
+    log_overlay.update_title(f"{active_window} 跳过模式 ] 退出")
+    time.sleep(1)
+    while True:
+        if is_key_pressed("]"):
+            pic_overlay.hide_overlay()
+            log_overlay.update_title(title)
+            break
+        image = capture(hwnd)
+        for prop in pic_list:
+            key = prop['key']
+            shift = prop['shift']
+            tof, loc = find_pic(prop, image, log_overlay, pic_overlay=pic_overlay)
+            if tof:
+                for (x,y) in shift:
+                    press(key, (loc[0]+x, loc[1]+y))
+                    time.sleep(0.1)
+                break
+        time.sleep(0.2)
+        if not tof:
+            pic_overlay.hide_overlay()
+
+def find_pic(prop, image, log_overlay, pic_overlay):
+    picxy = prop['picxy']
+    picwh = prop['picwh']
+    picrange = (picxy[0], picxy[1], picxy[0]+picwh[0], picxy[1]+picwh[1])
+    x1, y1, x2, y2 = picrange
+    image_clip = image[y1:y2, x1:x2]
+    method = prop.get('method', 'cv2')
+    pic = prop['pic']
+    if method == 'cv2':
+        template = cv2.imread(pic, cv2.IMREAD_UNCHANGED)
+        conf, loc_clip, w, h = match_pic(image_clip, template)
+    elif method == 'yolo':
+        model = prop['model']
+        conf, loc_clip, w, h = match_pic_yolo(image_clip, model)
+    else:
+        raise
+        
+    loc = (loc_clip[0]+x1, loc_clip[1]+y1)
+
+    spec = prop.get('spec', 0.985)
+    res = (conf >= spec)
+    if res:
+        print(pic, loc, w, h, conf)
+        logging.info(f"{pic} {loc} {conf}")
+        log_overlay.update_text(f"{pic} {loc} {conf:.3f}")
+        draw_rect(pic_overlay, loc, w, h, f"{pic} {conf:.3f}")
+
+    return res, loc
+
+def match_pic_yolo(image, model):
+    image_bgr = cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)
+    results = model.predict(image_bgr, conf=0.5)
+    if len(results[0].boxes)>0:
+        box = results[0].boxes[0]
+        x1, y1, x2, y2 = box.xyxy.tolist()[0]
+        loc = (int(x1), int(y1))
+        w = int(x2 - x1)
+        h = int(y2 - y1)
+        conf = box.conf.item()
+    else:
+        conf = 0
+        loc = (0,0)
+        w = 0
+        h = 0
+    return conf, loc, w, h
+
+def match_pic(image, template):
+
+    alpha = template[:,:,3]
+    grey = cv2.cvtColor(template, cv2.COLOR_BGR2GRAY)
+    result = cv2.matchTemplate(image, grey, cv2.TM_SQDIFF_NORMED, mask=alpha)
+    min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result)
+    val = min_val
+    loc = min_loc
+    conf = 1-val
+    h, w = template.shape[:2]
+
+    return conf, loc, w, h
+
+def draw_rect(pic_overlay, loc, w, h, txt):
+    image_overlay = np.zeros((pic_overlay.screen_height, pic_overlay.screen_width, 4), dtype=np.uint8)
+    cv2.rectangle(image_overlay, loc, (loc[0] + w, loc[1] + h), (0, 0, 255, 180), 2)
+    cv2.putText(image_overlay, txt, (loc[0], loc[1] - 10), 
+               cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255, 255), 1, cv2.LINE_AA)
+    cv2.putText(image_overlay, f"{loc}", (loc[0], loc[1] + h + 30), 
+               cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 200, 255, 255), 1, cv2.LINE_AA)
+    pic_overlay.update_overlay(image_overlay)
 
 class LogOverlay:
     def __init__(self, master):
@@ -121,44 +203,6 @@ class PicOverlay:
         self.label.configure(image=self.init_img)
         self.label.image = self.init_img
         self.root.update()
-
-def find_pic(image, pic, picrange, log_overlay, pic_overlay):
-    x1, y1, x2, y2 = picrange
-    image_clip = image[y1:y2, x1:x2]
-    template = cv2.imread(pic, cv2.IMREAD_UNCHANGED)
-
-    value, loc_clip = match_pic(image_clip, template)
-    loc = (loc_clip[0]+x1, loc_clip[1]+y1)
-
-    res = (value < 0.015)
-
-    if res:
-        logging.info(f"{pic} {loc} {value}")
-        log_overlay.update_text(f"{pic} {loc} {value:.3f}")
-        h, w = template.shape[:2]
-        draw_rect(pic_overlay, loc, w, h, f"{pic} {value:.3f}")
-
-    return res, loc
-
-def match_pic(image, template):
-
-    alpha = template[:,:,3]
-    grey = cv2.cvtColor(template, cv2.COLOR_BGR2GRAY)
-    result = cv2.matchTemplate(image, grey, cv2.TM_SQDIFF_NORMED, mask=alpha)
-    min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result)
-    val = min_val
-    loc = min_loc
-
-    return val, loc
-
-def draw_rect(pic_overlay, loc, w, h, txt):
-    image_overlay = np.zeros((pic_overlay.screen_height, pic_overlay.screen_width, 4), dtype=np.uint8)
-    cv2.rectangle(image_overlay, loc, (loc[0] + w, loc[1] + h), (0, 0, 255, 180), 2)
-    cv2.putText(image_overlay, txt, (loc[0], loc[1] - 10), 
-               cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255, 255), 1, cv2.LINE_AA)
-    cv2.putText(image_overlay, f"{loc}", (loc[0], loc[1] + h + 30), 
-               cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 200, 255, 255), 1, cv2.LINE_AA)
-    pic_overlay.update_overlay(image_overlay)
 
 def capture(hwnd: wintypes.HWND):
     

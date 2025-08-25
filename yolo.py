@@ -7,5 +7,5 @@ if __name__ == '__main__':
         data='yolo/icon.yml',
         epochs = 300,
         rect = True,
-        imgsz = 2896,
+        imgsz = 640,
     )
