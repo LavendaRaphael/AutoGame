@@ -52,13 +52,15 @@ def skipping_cv(log_overlay, pic_overlay, hwnd, pic_list):
             break
         image = capture(hwnd)
         for prop in pic_list:
-            key = prop['key']
-            shift = prop['shift']
             tof, loc = find_pic(prop, image, log_overlay, pic_overlay=pic_overlay)
             if tof:
-                for (x,y) in shift:
-                    press(key, (loc[0]+x, loc[1]+y))
-                    time.sleep(0.1)
+                actions = prop['actions']
+                for action in actions:
+                    for act, value in action.items():
+                        if act == 'sleep':
+                            time.sleep(value)
+                        else:
+                            press(act, (loc[0]+value[0], loc[1]+value[1]))
                 break
         time.sleep(0.2)
         if not tof:
