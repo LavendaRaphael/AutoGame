@@ -6,7 +6,7 @@ def mainquest(hwnd, log_overlay, pic_overlay):
     model = YOLO("FGO/best.pt")
     pic_list = [
         {'pic':'FGO/mainquest_1770_450_1850_550.png'   , "picxy": (1770, 450), 'picwh': (  80, 100), 'actions': [{'MOUSELEFT': ( 100, 100)}]},
-        {'pic':'map1','method': 'yolo', 'model': model , "picxy": (   0,   0), 'picwh': (2890,1725), 'actions': [{'MOUSELEFT': ( -10,  50)}], 'spec': 0.9},
+        {'pic':'map1','method': 'yolo', 'model': model , "picxy": ( 390, 270), 'picwh': (2110,1130), 'actions': [{'MOUSELEFT': ( -10,  50)}], 'spec': 0.9},
         {'pic':'FGO/skip_2550_125_2880_250.png'        , "picxy": (2550, 125), 'picwh': ( 330, 125), 'actions': [{'MOUSELEFT': ( 100, 100)},{'sleep':0.5},{'MOUSELEFT':(-700,1225)}]},
         {'pic':'FGO/dialog_350_470_100_100.png'        , "picxy": ( 350, 470), 'picwh': ( 100, 100), 'actions': [{'MOUSELEFT': ( 200, 100)}]},
         {'pic':'FGO/friendselect_1680_340_1800_450.png', "picxy": (1680, 340), 'picwh': ( 120, 110), 'actions': [{'MOUSELEFT': ( 100, 200)}]},
@@ -19,17 +19,15 @@ def mainquest(hwnd, log_overlay, pic_overlay):
         {'pic':'FGO/attackback_2650_1600_2800_1680.png', "picxy": (2650,1600), 'picwh': ( 150,  80), 
             'actions': [
                 {'MOUSELEFT': (-700,-1100)},
-                {'MOUSELEFT': (-1300,-1100)},
-                {'MOUSELEFT': (-1900,-1100)},
+                {'sleep':0.2},{'MOUSELEFT': (-1300,-1100)},
+                {'sleep':0.2},{'MOUSELEFT': (-1900,-1100)},
                 {'MOUSELEFT': (-100,-400)},
                 {'MOUSELEFT':(-700,-400)},
                 {'MOUSELEFT':(-1300,-400)},
                 {'MOUSELEFT':(-1900,-400)},
                 {'MOUSELEFT':(-2500,-400)}
             ]},
-        {'pic':'FGO/getzhanli_2400_1500_2550_1600.png' , "picxy": (2400,1500), 'picwh': ( 150, 100), 'actions': [{'MOUSELEFT': (-100, 100)}]},
-        {'pic':'FGO/getjiban_180_480_260_550.png'      , "picxy": ( 180, 480), 'picwh': (  80,  70), 'actions': [{'MOUSELEFT': ( 100, 100)}]},
-        {'pic':'FGO/getexp_1470_530_1550_600.png'      , "picxy": (1470, 530), 'picwh': (  80,  70), 'actions': [{'MOUSELEFT': ( 100, 100)}]},
+        {'pic':'FGO/star_2170_1630_100_80.png'         , "picxy": (2170,1630), 'picwh': ( 100,  80), 'actions': [{'MOUSELEFT': ( 300, -100)}]},
         {'pic':'FGO/questclear_250_300_400_500.png'    , "picxy": ( 250, 300), 'picwh': ( 150, 200), 'actions': [{'MOUSELEFT': ( 100, 100)}]},
         {'pic':'FGO/again_1740_1370_1820_1450.png'     , "picxy": (1740,1370), 'picwh': (  80,  80), 'actions': [{'MOUSELEFT': ( -10, 100)}]},
     ]
