@@ -11,8 +11,19 @@ def StarRail(hwnd, log_overlay, pic_overlay):
             break
         if is_key_pressed(";"):
             pic_list = [
-                {'pic':'StarRail/dialog_1885_1150_2020_1200.png', "picxy": (1885,1150),'picwh':(135,172), 'key': 'MOUSELEFT', "shift": (200,0)},
-                {'pic':'StarRail/dialog_192_52_450_120.png'     , "picxy": (192,   52),'picwh':(258,68), 'key': 'SPACE', "shift": (-100,0)},
+                {
+                    'pic':'StarRail/dialog_1885_1150_2020_1200.png', 
+                    "picxy": (1885,1150),'picwh':(135,172), 
+                    'actions': [
+                        {'click': ('VK_LBUTTON', (200,0))}
+                    ]
+                },{
+                    'pic':'StarRail/dialog_192_52_450_120.png'     , 
+                    "picxy": (192,   52),'picwh':(258,68), 
+                    'actions': [
+                        {'press': 'VK_SPACE'},
+                    ]
+                }
             ]
             skipping_cv(log_overlay, pic_overlay, hwnd, pic_list)
         time.sleep(0.2)
