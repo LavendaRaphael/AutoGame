@@ -28,7 +28,7 @@ def skipping_cv(log_overlay, pic_overlay, hwnd, pic_list):
     log_overlay.update_title(f"{active_window} 跳过模式 ] 退出")
     time.sleep(1)
     while True:
-        if is_key_pressed("]"):
+        if is_key_pressed("VK_OEM_6"):
             pic_overlay.hide_overlay()
             log_overlay.update_title(title)
             break
@@ -49,6 +49,7 @@ def skipping_cv(log_overlay, pic_overlay, hwnd, pic_list):
                             press_key(value)
                         else:
                             raise
+                time.sleep(0.5)
                 break
         time.sleep(0.2)
         if not tof:
@@ -62,18 +63,18 @@ def find_pic(prop, image, log_overlay, pic_overlay):
     image_clip = image[y1:y2, x1:x2]
     method = prop.get('method', 'cv2')
     pic = prop['pic']
+    spec = prop.get('spec', 0.985)
     if method == 'cv2':
         template = cv2.imread(pic, cv2.IMREAD_UNCHANGED)
         conf, loc_clip, w, h = match_pic(image_clip, template)
     elif method == 'yolo':
         model = prop['model']
-        conf, loc_clip, w, h = match_pic_yolo(image_clip, model)
+        conf, loc_clip, w, h = match_pic_yolo(image_clip, model, spec)
     else:
         raise
         
     loc = (loc_clip[0]+x1, loc_clip[1]+y1)
 
-    spec = prop.get('spec', 0.985)
     res = (conf >= spec)
     if res:
         print(pic, loc, w, h, conf)
@@ -83,9 +84,9 @@ def find_pic(prop, image, log_overlay, pic_overlay):
 
     return res, loc
 
-def match_pic_yolo(image, model):
+def match_pic_yolo(image, model, spec=0.5):
     image_bgr = cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)
-    results = model.predict(image_bgr, conf=0.5)
+    results = model.predict(image_bgr, conf=spec)
     if len(results[0].boxes)>0:
         box = results[0].boxes[0]
         x1, y1, x2, y2 = box.xyxy.tolist()[0]
@@ -546,6 +547,7 @@ def vk_codes(name):
         'VK_LAUNCH_APP1': 0xB6,
         'VK_LAUNCH_APP2': 0xB7,
         'VK_OEM_1': 0xBA,
+        ';': 0xBA,
         'VK_OEM_PLUS': 0xBB,
         'VK_OEM_COMMA': 0xBC,
         'VK_OEM_MINUS': 0xBD,
@@ -553,8 +555,10 @@ def vk_codes(name):
         'VK_OEM_2': 0xBF,
         'VK_OEM_3': 0xC0,
         'VK_OEM_4': 0xDB,
+        '[': 0xDB,
         'VK_OEM_5': 0xDC,
         'VK_OEM_6': 0xDD,
+        ']': 0xDD,
         'VK_OEM_7': 0xDE,
         'VK_OEM_8': 0xDF,
         'VK_OEM_102': 0xE2,

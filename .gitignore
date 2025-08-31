@@ -1,6 +1,7 @@
 __pycache__
 debug.log
-cap
+cap/*.png
 runs
 yolo11n.pt
 yolo
+cap/clip

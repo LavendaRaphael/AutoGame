@@ -1,4 +1,4 @@
-from winlib import get_window_title, is_key_pressed, skipping_cv
+from winlib import get_window_title, is_key_pressed, skipping_cv, capture_mode
 import time
 
 def Reverse1999(hwnd, log_overlay, pic_overlay):
@@ -20,4 +20,6 @@ def Reverse1999(hwnd, log_overlay, pic_overlay):
                 },
             ]
             skipping_cv(log_overlay, pic_overlay, hwnd, pic_list)
+        elif is_key_pressed("["):
+            capture_mode(hwnd, log_overlay)
         time.sleep(0.2)

@@ -6,26 +6,31 @@ def mainquest(hwnd, log_overlay, pic_overlay):
     model = YOLO("FGO/best.pt")
     pic_list = [
         {
-            'pic':'FGO/mainquest_1770_450_1850_550.png', 
-            "picxy": (1770, 450), 'picwh': (  80, 100), 
+            'pic':'FGO/quest_2060_510_260_25.png', 
+            "picxy": (2060, 510), 'picwh': (  260, 59), 
             'actions': [
-                {'click': ('VK_LBUTTON', ( 100, 100))}
+                {'click': ('VK_LBUTTON', ( -10, 0))}
             ]
         },{
             'pic':'map1',
             'method': 'yolo', 
             'model': model , 
-            "picxy": ( 390, 270), 'picwh': (2110,1130), 
+            "picxy": ( 150, 200), 'picwh': (2720,1200), 
             'spec': 0.9,
             'actions': [
                 {'click': ('VK_LBUTTON', ( -10, 100))}
+            ]
+        },{
+            'pic':'FGO/skipyes_1800_1320_1970_1400.png', 
+            "picxy": (1800, 1320), 'picwh': ( 170, 80), 
+            'actions': [
+                {'click': ('VK_LBUTTON', ( 100, 100))},
             ]
         },{
             'pic':'FGO/skip_2550_125_2880_250.png', 
             "picxy": (2550, 125), 'picwh': ( 330, 125), 
             'actions': [
                 {'click': ('VK_LBUTTON', ( 100, 100))},
-                {'sleep':0.5},{'VK_LBUTTON':(-700,1225)}
             ]
         },{
             'pic':'FGO/dialog_350_470_100_100.png'        , 
@@ -34,8 +39,8 @@ def mainquest(hwnd, log_overlay, pic_overlay):
                 {'click': ('VK_LBUTTON', ( 200, 100))}
             ]
         },{
-            'pic':'FGO/friendselect_1680_340_1800_450.png', 
-            "picxy": (1680, 340), 'picwh': ( 120, 110), 
+            'pic':'FGO/firendselect_1690_340_100_100.png', 
+            "picxy": (1690, 340), 'picwh': ( 100, 100), 
             'actions': [
                 {'click': ('VK_LBUTTON', ( 100, 200))}
             ]
@@ -44,7 +49,8 @@ def mainquest(hwnd, log_overlay, pic_overlay):
             "picxy": (1330,1400), 'picwh': (  70, 100), 
             'actions': [
                 {'click': ('VK_LBUTTON', ( 100, 100))},
-                {'sleep':0.5},{'VK_LBUTTON':(-660,200)}
+                {'sleep':0.5},
+                {'click': ('VK_LBUTTON', (-660,200))}
             ]
         },{
             'pic':'FGO/teamauto_1900_1420_1970_1500.png'  , 
@@ -91,26 +97,38 @@ def mainquest(hwnd, log_overlay, pic_overlay):
                 {'sleep':0.1}, {'click': ('VK_LBUTTON',(-2500, -400))}
             ]
         },{
-            'pic':'FGO/star_2170_1630_100_80.png'         , 
+            'pic':'FGO/star_2170_1630_100_80.png', 
             "picxy": (2170,1630), 'picwh': ( 100,  80), 
             'actions': [
                 {'click': ('VK_LBUTTON', ( 300, -100))}
             ]
         },{
-            'pic':'FGO/questclear_250_300_400_500.png'    , 
+            'pic':'FGO/questclear_250_300_400_500.png', 
             "picxy": ( 250, 300), 'picwh': ( 150, 200), 
             'actions': [
                 {'click': ('VK_LBUTTON', ( 100, 100))}
             ]
         },{
-            'pic':'FGO/again_1740_1370_1820_1450.png'     , 
+            'pic':'FGO/again_1740_1370_1820_1450.png', 
             "picxy": (1740,1370), 'picwh': (  80,  80), 
             'actions': [
                 {'click': ('VK_LBUTTON', ( -10, 100))}
             ]
         },{
-            'pic':'FGO/notice_1820_1330_80_80.png'        , 
+            'pic':'FGO/notice_1820_1330_80_80.png', 
             "picxy": (1820,1330), 'picwh': (  80,  80), 
+            'actions': [
+                {'click': ('VK_LBUTTON', ( -10,  10))}
+            ]
+        },{
+            'pic':'FGO/friendapply_2600_280_2750_350.png', 
+            "picxy": (2600,280), 'picwh': ( 150, 70), 
+            'actions': [
+                {'click': ('VK_LBUTTON', ( -2000,  1250))}
+            ]
+        },{
+            'pic':'FGO/network_1730_1330_80_80.png', 
+            "picxy": (1730,1330), 'picwh': ( 80, 80), 
             'actions': [
                 {'click': ('VK_LBUTTON', ( -10,  10))}
             ]
