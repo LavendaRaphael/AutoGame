@@ -7,8 +7,8 @@ def main():
     #pic_list = pic_list[:5]
     for i in range(len(pic_list)):
         pic_list[i] = 'cap/clip/'+pic_list[i]
-    x1, y1 = 1730, 1330
-    w, h = 80, 80
+    x1, y1 = 2690, 670
+    w, h = 80, 60
     x2 = x1+w
     y2 = y1+h
 
