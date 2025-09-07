@@ -22,13 +22,13 @@ def capture_mode(hwnd, log_overlay):
             log_overlay.update_title(title)
             break
 
-def skipping_cv(log_overlay, pic_overlay, hwnd, pic_list):
+def skipping(log_overlay, pic_overlay, hwnd, pic_list):
     _, active_window = get_window_title(hwnd)
     title = log_overlay.title
     log_overlay.update_title(f"{active_window} 跳过模式 ] 退出")
     time.sleep(1)
     while True:
-        if is_key_pressed("VK_OEM_6"):
+        if is_key_pressed("]"):
             pic_overlay.hide_overlay()
             log_overlay.update_title(title)
             break
@@ -47,9 +47,10 @@ def skipping_cv(log_overlay, pic_overlay, hwnd, pic_list):
                             click_mouse(key, pos)
                         elif act == 'press':
                             press_key(value)
+                        elif act == 'break':
+                            return
                         else:
                             raise
-                time.sleep(0.5)
                 break
         time.sleep(0.2)
         if not tof:
@@ -77,7 +78,6 @@ def find_pic(prop, image, log_overlay, pic_overlay):
 
     res = (conf >= spec)
     if res:
-        print(pic, loc, w, h, conf)
         logging.info(f"{pic} {loc} {conf}")
         log_overlay.update_text(f"{pic} {loc} {conf:.3f}")
         draw_rect(pic_overlay, loc, w, h, f"{pic} {conf:.3f}")
@@ -550,7 +550,7 @@ def vk_codes(name):
         'VK_OEM_PLUS': 0xBB,
         'VK_OEM_COMMA': 0xBC, ',': 0xBC,
         'VK_OEM_MINUS': 0xBD,
-        'VK_OEM_PERIOD': 0xBE,
+        'VK_OEM_PERIOD': 0xBE, '.': 0xBE,
         'VK_OEM_2': 0xBF,
         'VK_OEM_3': 0xC0,
         'VK_OEM_4': 0xDB, '[': 0xDB,

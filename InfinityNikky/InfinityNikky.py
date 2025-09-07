@@ -1,4 +1,4 @@
-from winlib import get_window_title, is_key_pressed, skipping_cv
+from winlib import get_window_title, is_key_pressed, skipping, capture_mode
 import time
 
 def Nikky(hwnd, log_overlay, pic_overlay):
@@ -12,14 +12,44 @@ def Nikky(hwnd, log_overlay, pic_overlay):
         if is_key_pressed(";"):
             pic_list = [
                 {
-                    'pic':'InfinityNikky/dialog_0_0_450_136.png', 
-                    "picxy": (0,0), 'picwh': (450,136), 
+                    'pic':'InfinityNikky/history_70_45_70_70.png', 
+                    "picxy": (70,45), 'picwh': (70,70), 
                     'actions': [
                         {'press':'F'}
                     ]
-                }
+                },
+                {
+                    'pic':'InfinityNikky/F_2520_1690_40_40.png', 
+                    "picxy": (2352,1720), 'picwh': (40,40), 
+                    'actions': [
+                        {'press':'F'}
+                    ]
+                },
+                {
+                    'pic':'InfinityNikky/F_2520_1690_40_40.png', 
+                    "picxy": (2568,1704), 'picwh': (40,40), 
+                    'actions': [
+                        {'press':'F'}
+                    ]
+                },
+                {
+                    'pic':'InfinityNikky/F_2520_1690_40_40.png', 
+                    "picxy": (2424,1720), 'picwh': (40,40), 
+                    'actions': [
+                        {'press':'F'}
+                    ]
+                },
+                #{
+                #    'pic':'InfinityNikky/F_2520_1690_40_40.png', 
+                #    "picxy": (2300,1690), 'picwh': (400,100), 
+                #    'actions': [
+                #        {'press':'F'}
+                #    ]
+                #}
             ]
-            skipping_cv(log_overlay, pic_overlay, hwnd, pic_list)
+            skipping(log_overlay, pic_overlay, hwnd, pic_list)
+        elif is_key_pressed("["):
+            capture_mode(hwnd, log_overlay)
         time.sleep(0.2)
 
 def fishing(overlay):

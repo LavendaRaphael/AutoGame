@@ -1,4 +1,4 @@
-from winlib import get_window_title, is_key_pressed, skipping_cv, capture_mode
+from winlib import get_window_title, is_key_pressed, skipping, capture_mode
 import time
 
 def ZZZ(hwnd, log_overlay, pic_overlay):
@@ -12,7 +12,15 @@ def ZZZ(hwnd, log_overlay, pic_overlay):
             'actions': [
                 {'click': ('VK_LBUTTON', (100,50))}
             ],
-        },{
+        },
+        {
+            'pic':'ZZZ/dialog_2140_1130_2220_1230_1.png', 
+            "picxy": (0,0), 'picwh': (2880,1800), 
+            'actions': [
+                {'click': ('VK_LBUTTON', (100,50))}
+            ],
+        },
+        {
             'pic':'ZZZ/dialog_2140_1130_2220_1230.png'  , 
             "picxy": (2140,1130), 'picwh': (80 ,100), 
             'actions': [
@@ -28,7 +36,7 @@ def ZZZ(hwnd, log_overlay, pic_overlay):
             'pic':'ZZZ/dialog_582_1404_860_1728.png'    , 
             "picxy": (582 ,1404), 'picwh': (278,324), 
             'actions': [
-                {'press': 'SPACE'}
+                {'press': 'VK_SPACE'}
             ],
         },{
             'pic':'ZZZ/dialog_2140_1230_2220_1330.png'  , 
@@ -40,7 +48,7 @@ def ZZZ(hwnd, log_overlay, pic_overlay):
             'pic':'ZZZ/dialog_582_1404_860_1728.png'    , 
             "picxy": (582 ,1386), 'picwh': (278,324), 
             'actions': [
-                {'press': 'SPACE'}
+                {'press': 'VK_SPACE'}
             ],
         },{
             'pic':'ZZZ/dialog_810_772_890_840.png'      , 
@@ -61,13 +69,13 @@ def ZZZ(hwnd, log_overlay, pic_overlay):
                 {'press': 'VK_SPACE'}
             ],
         }
-    ],
+    ]
     while True:
         hwnd_x, _ = get_window_title()
         if hwnd_x != hwnd:
             break
         if is_key_pressed(";"):
-            skipping_cv(log_overlay, pic_overlay, hwnd, pic_list)
+            skipping(log_overlay, pic_overlay, hwnd, pic_list)
         elif is_key_pressed("["):
             capture_mode(hwnd, log_overlay)
         time.sleep(0.2)

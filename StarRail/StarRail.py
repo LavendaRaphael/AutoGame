@@ -1,4 +1,4 @@
-from winlib import get_window_title, is_key_pressed, skipping_cv
+from winlib import get_window_title, is_key_pressed, skipping
 import time
 
 def StarRail(hwnd, log_overlay, pic_overlay):
@@ -25,5 +25,5 @@ def StarRail(hwnd, log_overlay, pic_overlay):
                     ]
                 }
             ]
-            skipping_cv(log_overlay, pic_overlay, hwnd, pic_list)
+            skipping(log_overlay, pic_overlay, hwnd, pic_list)
         time.sleep(0.2)
