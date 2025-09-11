@@ -23,15 +23,15 @@ def capture_mode(hwnd, log_overlay):
             break
 
 def skipping(log_overlay, pic_overlay, hwnd, pic_list):
-    _, active_window = get_window_title(hwnd)
+
     title = log_overlay.title
-    log_overlay.update_title(f"{active_window} 跳过模式 ] 退出")
+    log_overlay.update_title(f"{title} ] 退出")
     time.sleep(1)
     while True:
         if is_key_pressed("]"):
             pic_overlay.hide_overlay()
             log_overlay.update_title(title)
-            break
+            return True
         image = capture(hwnd)
         for prop in pic_list:
             tof, loc = find_pic(prop, image, log_overlay, pic_overlay=pic_overlay)
@@ -48,7 +48,9 @@ def skipping(log_overlay, pic_overlay, hwnd, pic_list):
                         elif act == 'press':
                             press_key(value)
                         elif act == 'break':
-                            return
+                            pic_overlay.hide_overlay()
+                            log_overlay.update_title(title)
+                            return False
                         else:
                             raise
                 break

@@ -51,6 +51,13 @@ def get_picdict():
                 {'click': ('VK_LBUTTON', ( 100, 200))}
             ]
         },
+        'friendselect1': {
+            'pic':'FGO/firendselect_1690_340_100_100.png', 
+            "picxy": (1690, 340), 'picwh': ( 100, 100), 
+            'actions': [
+                {'break': 1}
+            ]
+        },
         'teamclose': {
             'pic':'FGO/teamclose_1330_1400_1400_1500.png' , 
             "picxy": (1330,1400), 'picwh': (  70, 100), 
@@ -58,6 +65,13 @@ def get_picdict():
                 {'click': ('VK_LBUTTON', ( 100, 100))},
                 {'sleep':0.5},
                 {'click': ('VK_LBUTTON', (-660,200))}
+            ]
+        },
+        'teamclose1': {
+            'pic':'FGO/teamclose_1330_1400_1400_1500.png' , 
+            "picxy": (1330,1400), 'picwh': (  70, 100), 
+            'actions': [
+                {'click': ('VK_LBUTTON', ( 100, 100))},
             ]
         },
         'teamauto': {
@@ -155,7 +169,8 @@ def get_picdict():
             'pic':'FGO/info_2690_670_80_60.png', 
             "picxy": (2690, 670), 'picwh': (  80, 60), 
             'actions': [
-                {'click': ('VK_LBUTTON', ( -500, -10))}
+                {'click': ('VK_LBUTTON', ( -500, -10))},
+                {'sleep': 0.5}
             ]
         },
         'again': {
@@ -169,8 +184,14 @@ def get_picdict():
             'pic':'FGO/apple_1940_1500_50_50.png', 
             "picxy": (1940,1500), 'picwh': ( 50, 50), 
             'actions': [
-                {'break': 1},
                 {'click': ('VK_LBUTTON', ( 0,  -700))},
+            ]
+        },
+        'apple1': {
+            'pic':'FGO/apple_1940_1500_50_50.png', 
+            "picxy": (1940,1500), 'picwh': ( 50, 50), 
+            'actions': [
+                {'break': 1},
             ]
         },
         'appleyes': {
@@ -191,11 +212,48 @@ def rush(hwnd, log_overlay, pic_overlay):
         skipping(log_overlay, pic_overlay, hwnd, pic_list2)
 
 def grand(hwnd, log_overlay, pic_overlay):
+    
+    title = log_overlay.title
+    log_overlay.update_title("冠位战")
 
-    skipping(log_overlay, pic_overlay, hwnd, pic_list)
+    pic_dict = get_picdict()
+    pic_list1 = [
+        pic_dict['apple'],
+        pic_dict['appleyes'],
+        pic_dict['start'],
+        pic_dict['friendselect1'],
+    ]
+    pic_list2 = [
+        pic_dict['start'],
+        pic_dict['apple1'],
+        pic_dict['info'],
+        pic_dict['friendselect'],
+        pic_dict['teamclose1'],
+        pic_dict['teamend'],
+        pic_dict['attack'],
+        pic_dict['attackback'],
+        pic_dict['star'],
+        pic_dict['award'],
+        pic_dict['friendapply'],
+        pic_dict['again'],
+        pic_dict['network'],
+    ]
+    apple = 5
+    for i in range(apple):
+        log_overlay.update_title(f"冠位战 apple {i}/{apple}")
+        stop = skipping(log_overlay, pic_overlay, hwnd, pic_list1)
+        if stop:
+            break
+        stop = skipping(log_overlay, pic_overlay, hwnd, pic_list2)
+        if stop:
+            break
+
+    log_overlay.update_title(title)
 
 def mainquest(hwnd, log_overlay, pic_overlay):
 
+    title = log_overlay.title
+    log_overlay.update_title("主线")
     pic_dict = get_picdict()
     pic_list = [
         pic_dict['quest'],
@@ -218,14 +276,13 @@ def mainquest(hwnd, log_overlay, pic_overlay):
         pic_dict['network'],
     ]
     skipping(log_overlay, pic_overlay, hwnd, pic_list)
-
+    log_overlay.update_title(title)
 
 def FGO(hwnd, log_overlay, pic_overlay):
-    _, active_window = get_window_title(hwnd)
-    title = f"{active_window} ; 主线 , 冠位战"
+    title = f"FGO ; 主线 , 冠位战"
     log_overlay.update_title(title)
     while True:
-        hwnd_x, active_window = get_window_title()
+        hwnd_x, _ = get_window_title()
         if hwnd_x != hwnd:
             break
         elif is_key_pressed(";"):
