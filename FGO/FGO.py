@@ -1,4 +1,4 @@
-from winlib import get_window_title, is_key_pressed, skipping, capture_mode, capture
+from winlib import get_window_title, is_key_pressed, skipping, capture_mode
 import time
 from ultralytics import YOLO
 
@@ -205,16 +205,9 @@ def get_picdict():
     return pic_dict
 
 def rush(hwnd, log_overlay, pic_overlay):
-
-    apple = 10
-    for i in range(apple):
-        skipping(log_overlay, pic_overlay, hwnd, pic_list1)
-        skipping(log_overlay, pic_overlay, hwnd, pic_list2)
-
-def grand(hwnd, log_overlay, pic_overlay):
     
     title = log_overlay.title
-    log_overlay.update_title("冠位战")
+    log_overlay.update_title("刷本")
 
     pic_dict = get_picdict()
     pic_list1 = [
@@ -240,7 +233,7 @@ def grand(hwnd, log_overlay, pic_overlay):
     ]
     apple = 5
     for i in range(apple):
-        log_overlay.update_title(f"冠位战 apple {i}/{apple}")
+        log_overlay.update_title(f"刷本 apple {i}/{apple}")
         stop = skipping(log_overlay, pic_overlay, hwnd, pic_list1)
         if stop:
             break
@@ -279,7 +272,7 @@ def mainquest(hwnd, log_overlay, pic_overlay):
     log_overlay.update_title(title)
 
 def FGO(hwnd, log_overlay, pic_overlay):
-    title = f"FGO ; 主线 , 冠位战"
+    title = f"FGO ; 主线 , 刷本"
     log_overlay.update_title(title)
     while True:
         hwnd_x, _ = get_window_title()
@@ -288,8 +281,6 @@ def FGO(hwnd, log_overlay, pic_overlay):
         elif is_key_pressed(";"):
             mainquest(hwnd, log_overlay, pic_overlay)
         elif is_key_pressed(","):
-            grand(hwnd, log_overlay, pic_overlay)
-        elif is_key_pressed("."):
             rush(hwnd, log_overlay, pic_overlay)
         elif is_key_pressed("["):
             capture_mode(hwnd, log_overlay)

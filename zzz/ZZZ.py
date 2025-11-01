@@ -68,7 +68,7 @@ def ZZZ(hwnd, log_overlay, pic_overlay):
             'actions': [
                 {'press': 'VK_SPACE'}
             ],
-        }
+        },
     ]
     while True:
         hwnd_x, _ = get_window_title()
