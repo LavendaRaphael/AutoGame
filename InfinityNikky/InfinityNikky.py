@@ -12,35 +12,35 @@ def Nikky(hwnd, log_overlay, pic_overlay):
         if is_key_pressed(";"):
             pic_list = [
                 {
-                    'pic':'InfinityNikky/history_70_45_70_70.png', 
+                    'pic':'InfinityNikky/pic/history_70_45_70_70.png', 
                     "picxy": (70,45), 'picwh': (70,70), 
                     'actions': [
                         {'press':'F'}
                     ]
                 },
                 {
-                    'pic':'InfinityNikky/F_2520_1690_40_40.png', 
+                    'pic':'InfinityNikky/pic/F_2520_1690_40_40.png', 
                     "picxy": (2352,1720), 'picwh': (40,40), 
                     'actions': [
                         {'press':'F'}
                     ]
                 },
                 {
-                    'pic':'InfinityNikky/F_2520_1690_40_40.png', 
+                    'pic':'InfinityNikky/pic/F_2520_1690_40_40.png', 
                     "picxy": (2568,1704), 'picwh': (40,40), 
                     'actions': [
                         {'press':'F'}
                     ]
                 },
                 {
-                    'pic':'InfinityNikky/F_2520_1690_40_40.png', 
+                    'pic':'InfinityNikky/pic/F_2520_1690_40_40.png', 
                     "picxy": (2424,1720), 'picwh': (40,40), 
                     'actions': [
                         {'press':'F'}
                     ]
                 },
                 #{
-                #    'pic':'InfinityNikky/F_2520_1690_40_40.png', 
+                #    'pic':'InfinityNikky/pic/F_2520_1690_40_40.png', 
                 #    "picxy": (2300,1690), 'picwh': (400,100), 
                 #    'actions': [
                 #        {'press':'F'}
