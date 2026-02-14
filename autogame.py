@@ -10,6 +10,7 @@ from ZZZ.ZZZ import ZZZ
 from StarRail.StarRail import StarRail
 from Reverse1999.Reverse1999 import Reverse1999
 from FGO.FGO import FGO
+from EndField.EndField import EndField
 
 # 配置日志记录
 logging.basicConfig(
@@ -23,6 +24,7 @@ logging.basicConfig(
 def game_script_thread(log_overlay, pic_overlay):
     while True:
         hwnd, active_window = get_window_title()
+        log_overlay.update(title = active_window)
         if active_window == "绝区零":
             ZZZ(hwnd, log_overlay, pic_overlay)
         elif active_window == "无限暖暖  ":
@@ -30,13 +32,17 @@ def game_script_thread(log_overlay, pic_overlay):
         elif active_window == "崩坏：星穹铁道":
             StarRail(hwnd, log_overlay, pic_overlay)
         elif active_window == "MuMu安卓设备":
-            log_overlay.update_title(f"MuMu安卓设备: 1 重返未来 2 FGO")
+            log_overlay.update(title = "MuMu安卓设备: 1 重返未来 2 FGO")
             if is_key_pressed("1"):
+                log_overlay.update(title = "重返未来 1999")
                 Reverse1999(hwnd, log_overlay, pic_overlay)
             elif is_key_pressed("2"):
+                log_overlay.update(title = "Fate/Grand Order")
                 FGO(hwnd, log_overlay, pic_overlay)
+        elif active_window == "Endfield":
+            EndField(hwnd, log_overlay, pic_overlay)
         else:
-            log_overlay.update_text(f"当前窗口: {active_window}")
+            logging.info(f'[{hwnd}] [{active_window}]')
         time.sleep(1)
 
 def main():

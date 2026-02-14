@@ -9,28 +9,28 @@ import logging
 from datetime import datetime
 
 def capture_mode(hwnd, log_overlay):
-    _, active_window = get_window_title(hwnd)
-    title = log_overlay.title
-    log_overlay.update_title(f"{active_window} 截图模式 ; 截图 ] 退出")
+
+    mode = log_overlay.mode
+    log_overlay.update(mode = "截图模式 截图 ; 退出 ]")
     while True:
         if is_key_pressed(";"):
             image = capture(hwnd)
             pic = f"cap/{time.strftime('%Y%m%d_%H%M%S')}.png"
             cv2.imwrite(pic, image)
-            log_overlay.update_text(pic)
+            log_overlay.update(text = pic)
         elif is_key_pressed("]"):
-            log_overlay.update_title(title)
+            log_overlay.update(mode = mode)
             break
 
 def skipping(log_overlay, pic_overlay, hwnd, pic_list):
 
-    title = log_overlay.title
-    log_overlay.update_title(f"{title} ] 退出")
+    #mode = log_overlay.mode
+    #log_overlay.update(mode = "剧情模式 退出 ]")
     time.sleep(1)
     while True:
         if is_key_pressed("]"):
             pic_overlay.hide_overlay()
-            log_overlay.update_title(title)
+            #log_overlay.update(mode = mode)
             return True
         image = capture(hwnd)
         for prop in pic_list:
@@ -49,13 +49,14 @@ def skipping(log_overlay, pic_overlay, hwnd, pic_list):
                             press_key(value)
                         elif act == 'break':
                             pic_overlay.hide_overlay()
-                            log_overlay.update_title(title)
+                            #log_overlay.update(mode = mode)
                             return False
                         else:
                             raise
                 break
         time.sleep(0.2)
         if not tof:
+            log_overlay.update(text = "")
             pic_overlay.hide_overlay()
 
 def find_pic(prop, image, log_overlay, pic_overlay):
@@ -73,6 +74,8 @@ def find_pic(prop, image, log_overlay, pic_overlay):
     elif method == 'yolo':
         model = prop['model']
         conf, loc_clip, w, h = match_pic_yolo(image_clip, model, spec)
+    elif method == 'color':
+        conf, loc_clip, w, h = match_pic_color(image_clip)
     else:
         raise
         
@@ -81,12 +84,22 @@ def find_pic(prop, image, log_overlay, pic_overlay):
     res = (conf >= spec)
     if res:
         logging.info(f"{pic} {loc} {conf}")
-        log_overlay.update_text(f"{pic} {loc} {conf:.3f}")
+        log_overlay.update(text = f"{pic} {loc} {conf:.3f}")
         draw_rect(pic_overlay, loc, w, h, f"{pic} {conf:.3f}")
 
     return res, loc
 
-def match_pic_yolo(image, model, spec=0.5):
+def match_pic_color(image):
+    
+    total_pixels = image.size
+    white_pixels = cv2.countNonZero(image)
+    black_pixels = total_pixels - white_pixels
+    conf = black_pixels / total_pixels
+    h, w = image.shape
+    loc = (0,0)
+    return conf, loc, w, h
+
+def match_pic_yolo(image, model, spec):
     image_bgr = cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)
     results = model.predict(image_bgr, conf=spec)
     if len(results[0].boxes)>0:
@@ -340,25 +353,26 @@ class LogOverlay:
         self.label = tk.Label(self.root, text="", font=("SimHei", 12, "bold"), fg="white", bg="black", anchor="w", justify='left')
         self.label.pack(fill=tk.BOTH, expand=True)
 
+        self.display_text = ""
         self.title = 'AutoGame'
-        self.timestamp = datetime.now().strftime("%H:%M:%S")
-        self.text = '启动'
+        self.mode = '启动'
+        self.text = ''
+        self.timestamp = ""
         self.update()
 
-    def update_title(self, title):
-        self.title = title
-        self.update()
-
-    def update_text(self, text):
-        if self.text != text:
-            self.text = text
-            self.timestamp = datetime.now().strftime("%H:%M:%S")
-            self.update()
-
-    def update(self):
-        display_text = f"{self.title}\n{self.timestamp} {self.text}"
-        self.label.config(text=display_text)
-        self.root.update()
+    def update(self, title = None, mode = None, text = None):
+        if title is not None:
+            self.title = title
+        if mode is not None:
+            self.mode = mode
+        if text is not None:
+            if self.text != text:
+                self.text = text
+                self.timestamp = datetime.now().strftime("%H:%M:%S")
+        display_text = f"{self.title}\n{self.mode}\n{self.timestamp} {self.text}"
+        if self.display_text != display_text:
+            self.label.config(text=display_text)
+            self.root.update()
 
 
 class PicOverlay:

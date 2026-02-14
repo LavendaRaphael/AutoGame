@@ -206,8 +206,8 @@ def get_picdict():
 
 def rush(hwnd, log_overlay, pic_overlay):
     
-    title = log_overlay.title
-    log_overlay.update_title("刷本")
+    mode = log_overlay.mode
+    log_overlay.update(mode = "刷本")
 
     pic_dict = get_picdict()
     pic_list1 = [
@@ -233,7 +233,7 @@ def rush(hwnd, log_overlay, pic_overlay):
     ]
     apple = 5
     for i in range(apple):
-        log_overlay.update_title(f"刷本 apple {i}/{apple}")
+        log_overlay.update(mode = f"刷本 apple {i}/{apple}")
         stop = skipping(log_overlay, pic_overlay, hwnd, pic_list1)
         if stop:
             break
@@ -241,12 +241,12 @@ def rush(hwnd, log_overlay, pic_overlay):
         if stop:
             break
 
-    log_overlay.update_title(title)
+    log_overlay.update(mode = mode)
 
 def mainquest(hwnd, log_overlay, pic_overlay):
 
-    title = log_overlay.title
-    log_overlay.update_title("主线")
+    mode = log_overlay.mode
+    log_overlay.update(mode = "主线")
     pic_dict = get_picdict()
     pic_list = [
         pic_dict['quest'],
@@ -269,11 +269,10 @@ def mainquest(hwnd, log_overlay, pic_overlay):
         pic_dict['network'],
     ]
     skipping(log_overlay, pic_overlay, hwnd, pic_list)
-    log_overlay.update_title(title)
+    log_overlay.update(mode = mode)
 
 def FGO(hwnd, log_overlay, pic_overlay):
-    title = f"FGO ; 主线 , 刷本"
-    log_overlay.update_title(title)
+    log_overlay.update(mode = "; 主线 , 刷本")
     while True:
         hwnd_x, _ = get_window_title()
         if hwnd_x != hwnd:

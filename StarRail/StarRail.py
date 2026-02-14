@@ -1,29 +1,32 @@
 from winlib import get_window_title, is_key_pressed, skipping
 import time
 
+def juqing(hwnd, log_overlay, pic_overlay):
+    mode = log_overlay.mode
+    log_overlay.update(mode = "剧情模式 退出 ]")
+    pic_list = [
+        {
+            'pic':'StarRail/pic/dialog_1885_1150_2020_1200.png', 
+            "picxy": (1885,1150),'picwh':(135,172), 
+            'actions': [
+                {'click': ('VK_LBUTTON', (200,0))}
+            ]
+        },{
+            'pic':'StarRail/pic/dialog_192_52_450_120.png'     , 
+            "picxy": (192,   52),'picwh':(258,68), 
+            'actions': [
+                {'press': 'VK_SPACE'},
+            ]
+        }
+    ]
+    skipping(log_overlay, pic_overlay, hwnd, pic_list)
+    log_overlay.update(mode = mode)
 def StarRail(hwnd, log_overlay, pic_overlay):
-    _, active_window = get_window_title(hwnd)
-    title = f"{active_window} ; 跳过"
-    log_overlay.update_title(title)
+    log_overlay.update(mode = '剧情模式 ;')
     while True:
-        hwnd_x, active_window = get_window_title()
+        hwnd_x, _ = get_window_title()
         if hwnd_x != hwnd:
             break
         if is_key_pressed(";"):
-            pic_list = [
-                {
-                    'pic':'StarRail/pic/dialog_1885_1150_2020_1200.png', 
-                    "picxy": (1885,1150),'picwh':(135,172), 
-                    'actions': [
-                        {'click': ('VK_LBUTTON', (200,0))}
-                    ]
-                },{
-                    'pic':'StarRail/pic/dialog_192_52_450_120.png'     , 
-                    "picxy": (192,   52),'picwh':(258,68), 
-                    'actions': [
-                        {'press': 'VK_SPACE'},
-                    ]
-                }
-            ]
-            skipping(log_overlay, pic_overlay, hwnd, pic_list)
+            juqing(hwnd, log_overlay, pic_overlay)
         time.sleep(0.2)

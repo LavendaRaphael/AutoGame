@@ -1,10 +1,9 @@
 from winlib import get_window_title, is_key_pressed, skipping, capture_mode
 import time
 
-def ZZZ(hwnd, log_overlay, pic_overlay):
-    _, active_window = get_window_title(hwnd)
-    title = f"{active_window} ; 跳过"
-    log_overlay.update_title(title)
+def juqing(hwnd, log_overlay, pic_overlay):
+    mode = log_overlay.mode
+    log_overlay.update(mode = "剧情模式 退出 ]")
     pic_list = [
         {
             'pic':'ZZZ/pic/dialog_2140_1130_2220_1230_1.png', 
@@ -68,14 +67,26 @@ def ZZZ(hwnd, log_overlay, pic_overlay):
             'actions': [
                 {'press': 'VK_SPACE'}
             ],
+        },{
+            'pic': 'black',
+            'method': 'color',
+            'spec': 0.9,
+            "picxy": (0,0), 'picwh': (2880, 1800 ), 
+            'actions': [
+                {'press': 'VK_SPACE'}
+            ],
         },
     ]
+    skipping(log_overlay, pic_overlay, hwnd, pic_list)
+    log_overlay.update(mode = mode)
+def ZZZ(hwnd, log_overlay, pic_overlay):
+    log_overlay.update(mode = "模式 剧情 ;")
     while True:
         hwnd_x, _ = get_window_title()
         if hwnd_x != hwnd:
             break
         if is_key_pressed(";"):
-            skipping(log_overlay, pic_overlay, hwnd, pic_list)
+            juqing(hwnd, log_overlay, pic_overlay)
         elif is_key_pressed("["):
             capture_mode(hwnd, log_overlay)
         time.sleep(0.2)
