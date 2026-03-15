@@ -7,6 +7,9 @@ import cv2
 from PIL import Image, ImageTk
 import logging
 from datetime import datetime
+from rapidocr_onnxruntime import RapidOCR
+
+ocr_engine = RapidOCR()
 
 def capture_mode(hwnd, log_overlay):
 
@@ -24,13 +27,10 @@ def capture_mode(hwnd, log_overlay):
 
 def skipping(log_overlay, pic_overlay, hwnd, pic_list):
 
-    #mode = log_overlay.mode
-    #log_overlay.update(mode = "剧情模式 退出 ]")
     time.sleep(1)
     while True:
         if is_key_pressed("]"):
             pic_overlay.hide_overlay()
-            #log_overlay.update(mode = mode)
             return True
         image = capture(hwnd)
         for prop in pic_list:
@@ -49,7 +49,6 @@ def skipping(log_overlay, pic_overlay, hwnd, pic_list):
                             press_key(value)
                         elif act == 'break':
                             pic_overlay.hide_overlay()
-                            #log_overlay.update(mode = mode)
                             return False
                         else:
                             raise
@@ -76,6 +75,8 @@ def find_pic(prop, image, log_overlay, pic_overlay):
         conf, loc_clip, w, h = match_pic_yolo(image_clip, model, spec)
     elif method == 'color':
         conf, loc_clip, w, h = match_pic_color(image_clip)
+    elif method == 'ocr':
+        conf, loc_clip, w, h = match_pic_ocr(image_clip, pic)
     else:
         raise
         
@@ -88,6 +89,26 @@ def find_pic(prop, image, log_overlay, pic_overlay):
         draw_rect(pic_overlay, loc, w, h, f"{pic} {conf:.3f}")
 
     return res, loc
+
+def match_pic_ocr(image, pic):
+    
+    result, _ = ocr_engine(image)
+    if result:
+        x1, y1 = result[0][0][0]
+        x2, y2 = result[0][0][2]
+        loc = (int(x1), int(y1))
+        w = int(x2 - x1)
+        h = int(y2 - y1)
+        if result[0][1] == pic:
+            conf = float(result[0][2])
+        else:
+            conf = 0
+    else:
+        conf = 0
+        loc = (0,0)
+        w = 0
+        h = 0
+    return conf, loc, w, h
 
 def match_pic_color(image):
     

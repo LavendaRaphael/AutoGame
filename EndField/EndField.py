@@ -1,20 +1,18 @@
 from winlib import get_window_title, is_key_pressed, skipping, capture_mode
 import time
-from ultralytics import YOLO
 
 def juqing(hwnd, log_overlay, pic_overlay):
     mode = log_overlay.mode
     log_overlay.update(mode = "剧情模式 退出 ]")
-    model = YOLO("EndField/best.pt")
     pic_list = [
         {
-            'pic':'dialogesc',
-            'method': 'yolo', 
-            'model': model, 
-            "picxy": ( 0, 0), 'picwh': (2880,1800), 
-            'spec': 0.4,
+            'pic': 'LOG',
+            'method': 'ocr', 
+            "picxy": ( 60, 90), 'picwh': (70, 40), 
+            'spec': 0.5,
             'actions': [
-                {'click': ('VK_LBUTTON', ( 10, 10))}
+                {'press': 'VK_ESCAPE'},
+                {'sleep':0.5},
             ]
         },
         {
