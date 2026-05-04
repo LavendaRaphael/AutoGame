@@ -29,7 +29,8 @@ def skipping(log_overlay, pic_overlay, hwnd, pic_list):
 
     time.sleep(1)
     while True:
-        if is_key_pressed("]"):
+        hwndx, _ = get_window_title()
+        if (hwndx != hwnd) or is_key_pressed("]"):
             pic_overlay.hide_overlay()
             return True
         image = capture(hwnd)

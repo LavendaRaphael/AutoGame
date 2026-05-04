@@ -70,7 +70,7 @@ def juqing(hwnd, log_overlay, pic_overlay):
         },{
             'pic': 'black',
             'method': 'color',
-            'spec': 0.9,
+            'spec': 0.8,
             "picxy": (0,0), 'picwh': (2880, 1800 ), 
             'actions': [
                 {'press': 'VK_SPACE'}

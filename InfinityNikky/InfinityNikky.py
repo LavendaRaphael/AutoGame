@@ -14,32 +14,61 @@ def juqing(hwnd, log_overlay, pic_overlay):
         },
         {
             'pic':'InfinityNikky/pic/F_2520_1690_40_40.png', 
-            "picxy": (2352,1720), 'picwh': (40,40), 
+            "picxy": (2352,1704), 'picwh': (40+2560-2352,40+1720-1704), 
             'actions': [
                 {'press':'F'}
             ]
         },
         {
-            'pic':'InfinityNikky/pic/F_2520_1690_40_40.png', 
-            "picxy": (2568,1704), 'picwh': (40,40), 
+            'pic':'InfinityNikky/pic/yituijiandapei_1330_440_50_50.png', 
+            "picxy": (1330,440), 'picwh': (50,50), 
             'actions': [
-                {'press':'F'}
+                {'sleep': 0.5},
+                {'click': ('VK_LBUTTON', (270-1330,1650-440))},
+                {'sleep': 0.5},
+                {'click': ('VK_LBUTTON', (270-1330,1650-440))},
+                {'sleep': 0.5},
+                {'click': ('VK_LBUTTON', (270-1330,1650-440))},
+                {'sleep': 0.5},
+                {'click': ('VK_LBUTTON', (270-1330,1650-440))},
             ]
         },
         {
-            'pic':'InfinityNikky/pic/F_2520_1690_40_40.png', 
-            "picxy": (2424,1720), 'picwh': (40,40), 
+            'pic':'InfinityNikky/pic/tuijiandapei_1530_700_50_50.png', 
+            "picxy": (1530,700), 'picwh': (50+1538-1530,50+758-700), 
             'actions': [
-                {'press':'F'}
+                {'sleep': 0.5},
+                {'click': ('VK_LBUTTON', (100,50))},
+                {'sleep': 0.5},
+                {'click': ('VK_LBUTTON', (100,50))},
+                {'sleep': 0.5},
             ]
         },
-        #{
-        #    'pic':'InfinityNikky/pic/F_2520_1690_40_40.png', 
-        #    "picxy": (2300,1690), 'picwh': (400,100), 
-        #    'actions': [
-        #        {'press':'F'}
-        #    ]
-        #}
+        {
+            'pic':'InfinityNikky/pic/tuijiandapei_1530_700_50_50.png', 
+            "picxy": (1680,700), 'picwh': (50,50), 
+            'actions': [
+                {'sleep': 0.5},
+                {'click': ('VK_LBUTTON', (270-1530,1650-700))},
+                {'sleep': 0.5},
+                {'click': ('VK_LBUTTON', (270-1530,1650-700))},
+            ]
+        },
+        {
+            'pic':'InfinityNikky/pic/querendapei_160_1670_50_50.png', 
+            "picxy": (160,1670), 'picwh': (50,50), 
+            'actions': [
+                {'sleep': 0.5},
+                {'click': ('VK_LBUTTON', (200,30))}
+            ]
+        },
+        {
+            'pic':'InfinityNikky/pic/chuansong_2380_1660_50_50.png', 
+            "picxy": (2380,1660), 'picwh': (50,50), 
+            'actions': [
+                {'click': ('VK_LBUTTON', (100,50))}
+            ]
+        },
     ]
     skipping(log_overlay, pic_overlay, hwnd, pic_list)
     log_overlay.update(mode = mode)
