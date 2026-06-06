@@ -11,7 +11,8 @@ def juqing(hwnd, log_overlay, pic_overlay):
             "picxy": ( 60, 90), 'picwh': (70, 40), 
             'spec': 0.5,
             'actions': [
-                {'press': 'VK_ESCAPE'},
+                {'click': ('VK_LBUTTON', (2700,0))},
+                #{'press': 'VK_ESCAPE'},
                 {'sleep':0.5},
             ]
         },

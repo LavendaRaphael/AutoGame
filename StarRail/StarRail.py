@@ -1,4 +1,4 @@
-from winlib import get_window_title, is_key_pressed, skipping
+from winlib import capture_mode, get_window_title, is_key_pressed, skipping
 import time
 
 def juqing(hwnd, log_overlay, pic_overlay):
@@ -12,10 +12,16 @@ def juqing(hwnd, log_overlay, pic_overlay):
                 {'click': ('VK_LBUTTON', (200,0))}
             ]
         },{
-            'pic':'StarRail/pic/dialog_192_52_450_120.png'     , 
+            'pic':'StarRail/pic/dialog_192_52_450_120.png', 
             "picxy": (192,   52),'picwh':(258,68), 
             'actions': [
                 {'press': 'VK_SPACE'},
+            ]
+        },{
+            'pic':'StarRail/pic/queren_1680_1072_50_50.png', 
+            "picxy": (1680,1072),'picwh':(50,50), 
+            'actions': [
+                {'click': ('VK_LBUTTON', (200,0))}
             ]
         }
     ]
@@ -29,4 +35,6 @@ def StarRail(hwnd, log_overlay, pic_overlay):
             break
         if is_key_pressed(";"):
             juqing(hwnd, log_overlay, pic_overlay)
+        elif is_key_pressed("["):
+            capture_mode(hwnd, log_overlay)
         time.sleep(0.2)
